@@ -3,23 +3,9 @@ version: ${version}
 main: ca.l1cked.dsellsystem.DSellSystemPlugin
 api-version: 1.21
 depend: [Vault]
-softdepend: [ProtocolLib]
+softdepend: [ProtocolLib, EzEconomy]
 author: L1cked
 description: Advanced selling plugin with multiplier progression system
-
-commands:
-  sell:
-    description: Opens the sell GUI
-    usage: /sell
-    aliases: []
-  worth:
-    description: Opens the item prices GUI
-    usage: /worth
-    aliases: [prices, itemprices]
-  dsellsystem:
-    description: Main DSellSystem command
-    usage: /dsellsystem [reload]
-    aliases: [ds]
 
 permissions:
   dsellsystem.reload:

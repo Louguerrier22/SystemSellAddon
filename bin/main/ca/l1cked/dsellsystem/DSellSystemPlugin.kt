@@ -71,7 +71,7 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
         saveDefaultConfig()
 
         if (!setupEconomy()) {
-            logger.severe("Vault not found! Disabling plugin...")
+            logger.severe("Economy setup failed. Disabling plugin...")
             server.pluginManager.disablePlugin(this)
             return
         }
@@ -108,13 +108,12 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
             .buildOnEnable(this)
         CommandRegistrar.register(this, commandManager)
 
-
         server.pluginManager.registerEvents(object : org.bukkit.event.Listener {
             @org.bukkit.event.EventHandler
             fun onPluginEnable(e: org.bukkit.event.server.PluginEnableEvent) {
                 if (e.plugin.name.equals("MayorSystem", ignoreCase = true)) {
                     mayorBridge.refreshProvider()
-        worthOverlay.enable()
+                    worthOverlay.enable()
                 }
             }
 
@@ -122,13 +121,12 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
             fun onPluginDisable(e: org.bukkit.event.server.PluginDisableEvent) {
                 if (e.plugin.name.equals("MayorSystem", ignoreCase = true)) {
                     mayorBridge.refreshProvider()
-        worthOverlay.enable()
+                    worthOverlay.enable()
                 }
             }
         }, this)
 
         server.servicesManager.register(DSellSystemApi::class.java, this, this, ServicePriority.Normal)
-
 
         logger.info("DSellSystem has been enabled!")
     }
@@ -164,11 +162,27 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
     }
 
     private fun setupEconomy(): Boolean {
-        if (server.pluginManager.getPlugin("Vault") == null) {
+        val vault = server.pluginManager.getPlugin("Vault")
+        if (vault == null) {
+            logger.severe("Vault plugin not found. Install Vault and an economy provider.")
             return false
         }
-        val rsp = server.servicesManager.getRegistration(Economy::class.java) ?: return false
+        if (!vault.isEnabled) {
+            logger.severe("Vault plugin is installed but not enabled yet.")
+            return false
+        }
+        val rsp = server.servicesManager.getRegistration(Economy::class.java)
+        if (rsp == null) {
+            val providers = server.servicesManager.getRegistrations(Economy::class.java)
+                .joinToString(", ") { "${it.provider.name} (${it.plugin.name})" }
+            logger.severe("Vault is enabled but no economy provider is registered. Install/enable an economy plugin (e.g., EssentialsX Economy).")
+            if (providers.isNotBlank()) {
+                logger.severe("Economy providers detected (not registered?): $providers")
+            }
+            return false
+        }
         economy = rsp.provider
+        logger.info("Hooked economy provider: ${economy.name}")
         return true
     }
 
