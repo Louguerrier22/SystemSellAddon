@@ -22,3 +22,7 @@ permissions:
   dsellsystem.settings:
     description: Allows opening the settings menu
     default: op
+
+  dsellsystem.resetworth:
+    description: Allows clearing worth lore for players
+    default: op

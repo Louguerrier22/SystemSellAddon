@@ -13,6 +13,7 @@ import org.incendo.cloud.paper.PaperCommandManager
 import org.incendo.cloud.parser.standard.DoubleParser
 import org.incendo.cloud.parser.standard.StringParser
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
+import org.bukkit.GameMode
 
 object CommandRegistrar {
     fun register(
@@ -211,6 +212,55 @@ object CommandRegistrar {
                     sender.sendMessage(MessageUtil.deserialize("&aDSellSystem configuration reloaded!"))
                 }
         )
+
+        val resetWorthPlayerArg = CommandComponent.builder<CommandSourceStack, String>("player", StringParser.stringParser())
+            .required()
+            .suggestionProvider(BlockingSuggestionProvider.Strings { _, input: CommandInput ->
+                val token = input.lastRemainingToken().lowercase()
+                val names = Bukkit.getOnlinePlayers().map { it.name }
+                (listOf("all") + names).filter { it.lowercase().startsWith(token) }.take(50)
+            })
+            .build()
+
+        manager.command(
+            manager.commandBuilder("dsellsystem")
+                .literal("resetworth")
+                .permission("dsellsystem.resetworth")
+                .handler { ctx: CommandContext<CommandSourceStack> ->
+                    val sender = SenderUtil.bukkitSender(ctx.sender())
+                    if (sender !is Player) {
+                        sender.sendMessage(MessageUtil.deserialize("&cSpecify a player or 'all' from console."))
+                        return@handler
+                    }
+                    clearWorthForPlayer(plugin, sender)
+                    sender.sendMessage(MessageUtil.deserialize("&aCleared your worth lore."))
+                }
+        )
+
+        manager.command(
+            manager.commandBuilder("dsellsystem")
+                .literal("resetworth")
+                .permission("dsellsystem.resetworth")
+                .argument(resetWorthPlayerArg)
+                .handler { ctx: CommandContext<CommandSourceStack> ->
+                    val sender = SenderUtil.bukkitSender(ctx.sender())
+                    val targetRaw = (ctx.get("player") as String).lowercase()
+                    if (targetRaw == "all") {
+                        for (p in Bukkit.getOnlinePlayers()) {
+                            clearWorthForPlayer(plugin, p)
+                        }
+                        sender.sendMessage(MessageUtil.deserialize("&aCleared worth lore for all online players."))
+                        return@handler
+                    }
+                    val target = Bukkit.getPlayerExact(ctx.get("player") as String)
+                    if (target == null) {
+                        sender.sendMessage(MessageUtil.deserialize("&cPlayer not found or not online."))
+                        return@handler
+                    }
+                    clearWorthForPlayer(plugin, target)
+                    sender.sendMessage(MessageUtil.deserialize("&aCleared worth lore for &f${target.name}&a."))
+                }
+        )
     }
 
     private fun materialSuggestions(): BlockingSuggestionProvider.Strings<CommandSourceStack> {
@@ -224,4 +274,12 @@ object CommandRegistrar {
     }
 
     private fun parseMaterial(input: String): Material? = Material.matchMaterial(input)
+
+    private fun clearWorthForPlayer(plugin: DSellSystemPlugin, player: Player) {
+        plugin.worthLoreManager.clearAllPlayerLore(player)
+        if (player.gameMode == GameMode.CREATIVE) return
+        if (plugin.worthOverlay.isAvailable()) {
+            plugin.worthOverlay.refreshPlayer(player)
+        }
+    }
 }

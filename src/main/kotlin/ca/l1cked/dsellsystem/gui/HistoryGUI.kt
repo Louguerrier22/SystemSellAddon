@@ -21,7 +21,7 @@ import org.bukkit.inventory.meta.BlockStateMeta
 import org.bukkit.block.ShulkerBox
 
 class HistoryGUI(private val plugin: DSellSystemPlugin) : Listener {
-    private data class State(var page: Int, var target: UUID, var targetName: String)
+    private data class State(var page: Int, var target: UUID, var targetName: String, var maxPage: Int = 1)
     private class HistoryHolder(var state: State) : InventoryHolder {
         override fun getInventory(): Inventory = Bukkit.createInventory(this, 9)
     }
@@ -43,6 +43,7 @@ class HistoryGUI(private val plugin: DSellSystemPlugin) : Listener {
         val total = plugin.historyService.itemHistoryCount(state.target)
         val maxPage = maxOf(1, ceil(total / pageSize.toDouble()).toInt())
         if (state.page > maxPage) state.page = maxPage
+        state.maxPage = maxPage
 
         val title = MessageUtil.deserialize("&8Sell History: &f${state.targetName} &7(${state.page}/$maxPage)")
         val holder = HistoryHolder(state)
@@ -80,8 +81,12 @@ class HistoryGUI(private val plugin: DSellSystemPlugin) : Listener {
             inv.setItem(i, item)
         }
 
-        inv.setItem(45, navItem("&aPrev", Material.ARROW))
-        inv.setItem(53, navItem("&aNext", Material.ARROW))
+        if (state.page > 1) {
+            inv.setItem(45, navItem("&aPrev", Material.ARROW))
+        }
+        if (state.page < maxPage) {
+            inv.setItem(53, navItem("&aNext", Material.ARROW))
+        }
 
         player.openInventory(inv)
     }
@@ -150,8 +155,10 @@ class HistoryGUI(private val plugin: DSellSystemPlugin) : Listener {
                 render(player, state)
             }
             53 -> {
-                state.page += 1
-                render(player, state)
+                if (state.page < state.maxPage) {
+                    state.page += 1
+                    render(player, state)
+                }
             }
         }
     }

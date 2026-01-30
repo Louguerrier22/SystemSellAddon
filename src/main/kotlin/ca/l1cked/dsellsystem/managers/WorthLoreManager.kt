@@ -20,6 +20,7 @@ import java.util.UUID
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryMoveItemEvent
 import org.bukkit.event.inventory.InventoryType
+import org.bukkit.event.inventory.InventoryCreativeEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.GameMode
 import org.bukkit.event.player.PlayerGameModeChangeEvent
@@ -45,8 +46,11 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
         val player = event.whoClicked as? Player ?: return
-        if (player.gameMode == GameMode.CREATIVE) return
-        if (event.view.type == InventoryType.CREATIVE) return
+        if (player.gameMode == GameMode.CREATIVE || event.view.type == InventoryType.CREATIVE) {
+            clearWorthLore(player.inventory)
+            clearCursorWorth(player)
+            return
+        }
         if (isOnCooldown(player.uniqueId)) return
         val title = MessageUtil.serialize(event.view.title())
         if (shouldSkipInventory(title)) return
@@ -81,8 +85,11 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
     @EventHandler
     fun onInventoryDrag(event: InventoryDragEvent) {
         val player = event.whoClicked as? Player ?: return
-        if (player.gameMode == GameMode.CREATIVE) return
-        if (event.view.type == InventoryType.CREATIVE) return
+        if (player.gameMode == GameMode.CREATIVE || event.view.type == InventoryType.CREATIVE) {
+            clearWorthLore(player.inventory)
+            clearCursorWorth(player)
+            return
+        }
         if (isOnCooldown(player.uniqueId)) return
         val title = MessageUtil.serialize(event.view.title())
         if (shouldSkipInventory(title)) return
@@ -117,7 +124,10 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
     @EventHandler
     fun onInventoryClose(event: InventoryCloseEvent) {
         val player = event.player as? Player ?: return
-        if (player.gameMode == GameMode.CREATIVE) return
+        if (player.gameMode == GameMode.CREATIVE) {
+            clearWorthLore(player.inventory)
+            return
+        }
         if (event.inventory.holder is ShulkerBox) {
             val slot = openShulkerSlots.remove(player.uniqueId) ?: return
             if (!isEnabled()) return
@@ -157,7 +167,10 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
     fun onItemPickup(event: EntityPickupItemEvent) {
         if (!isEnabled()) return
         val player = event.entity as? Player ?: return
-        if (player.gameMode == GameMode.CREATIVE) return
+        if (player.gameMode == GameMode.CREATIVE) {
+            clearWorthLore(player.inventory)
+            return
+        }
         val item = event.item.itemStack
         if (isShulkerBox(item.type) || plugin.pricesManager.getPrice(item.type) > 0) {
             plugin.server.scheduler.runTaskLater(plugin, Runnable {
@@ -170,7 +183,11 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
     fun onItemDrop(event: PlayerDropItemEvent) {
         if (!isEnabled()) return
         val player = event.player
-        if (player.gameMode == GameMode.CREATIVE) return
+        if (player.gameMode == GameMode.CREATIVE) {
+            clearWorthLore(player.inventory)
+            clearCursorWorth(player)
+            return
+        }
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             updateInventory(player)
         }, 1L)
@@ -187,28 +204,32 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
         if (players.isEmpty()) return
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             for (player in players) {
-                if (player.gameMode == GameMode.CREATIVE) continue
+                if (player.gameMode == GameMode.CREATIVE) {
+                    clearWorthLore(player.inventory)
+                    clearCursorWorth(player)
+                    continue
+                }
                 updateInventory(player)
             }
         }, 1L)
     }
 
     @EventHandler
+    fun onCreativeInventory(event: InventoryCreativeEvent) {
+        val player = event.whoClicked as? Player ?: return
+        if (player.gameMode != GameMode.CREATIVE) return
+        clearWorthLore(player.inventory)
+        clearCursorWorth(player)
+    }
+
+    @EventHandler
     fun onGameModeChange(event: PlayerGameModeChangeEvent) {
-        if (!isWorthLoreConfigured()) return
-        val player = event.player
         if (event.newGameMode == GameMode.CREATIVE) {
+            val player = event.player
             plugin.server.scheduler.runTaskLater(plugin, Runnable {
                 clearWorthLore(player.inventory)
-                if (player.openInventory.type != InventoryType.CREATIVE) {
-                    player.updateInventory()
-                }
-            }, 1L)
-        } else {
-            plugin.server.scheduler.runTaskLater(plugin, Runnable {
-                if (isProtocolLibAvailable()) {
-                    player.updateInventory()
-                }
+                clearCursorWorth(player)
+                player.updateInventory()
             }, 1L)
         }
     }
@@ -252,6 +273,13 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
         }
         clone.itemMeta = cloneMeta
         return clone
+    }
+
+    private fun clearCursorWorth(player: Player) {
+        val cursor = player.itemOnCursor
+        if (cursor.type == Material.AIR) return
+        val updated = clearItemLore(cursor) ?: return
+        player.setItemOnCursor(updated)
     }
 
     fun clearAllPlayerLore(player: Player) {

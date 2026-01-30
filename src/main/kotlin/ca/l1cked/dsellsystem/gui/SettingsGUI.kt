@@ -17,17 +17,21 @@ class SettingsGUI(private val plugin: DSellSystemPlugin) : Listener {
 
     fun open(player: Player) {
         val title = MessageUtil.deserialize("&8DSellSystem Settings")
-        val inv = Bukkit.createInventory(null, 27, title)
-        fill(inv)
+        val inv = Bukkit.createInventory(null, 9, title)
+        fill(inv, player)
         player.openInventory(inv)
     }
 
-    private fun fill(inv: Inventory) {
+    private fun fill(inv: Inventory, viewer: Player?) {
         inv.clear()
-        inv.setItem(11, toggleItem("Plugin", plugin.config.getBoolean("settings.enabled", true)))
-        inv.setItem(13, toggleItem("History", plugin.config.getBoolean("history.enabled", false)))
-        inv.setItem(15, actionItem("Reload", Material.NETHER_STAR, "&aReload config"))
-        inv.setItem(22, protocolStatusItem())
+        setBorders(inv)
+        inv.setItem(2, toggleItem("Plugin", plugin.config.getBoolean("settings.enabled", true)))
+        inv.setItem(3, toggleItem("History", plugin.config.getBoolean("history.enabled", false)))
+        inv.setItem(4, actionItem("Reload", Material.NETHER_STAR, "&aReload config"))
+        if (hasResetPermission(viewer)) {
+            inv.setItem(5, actionItem("Reset Worth Lore", Material.SPONGE, "&7Open reset menu"))
+        }
+        inv.setItem(6, protocolStatusItem())
     }
 
     private fun toggleItem(name: String, enabled: Boolean): ItemStack {
@@ -104,32 +108,59 @@ class SettingsGUI(private val plugin: DSellSystemPlugin) : Listener {
         event.isCancelled = true
 
         when (event.rawSlot) {
-            11 -> {
+            2 -> {
                 val key = "settings.enabled"
                 val next = !plugin.config.getBoolean(key, true)
                 plugin.config.set(key, next)
                 plugin.saveConfig()
-                fill(event.inventory)
+                fill(event.inventory, player)
                 MessageUtil.sendMessage(player, if (next) "&aPlugin enabled." else "&cPlugin disabled.")
             }
-            13 -> {
+            3 -> {
                 val key = "history.enabled"
                 val next = !plugin.config.getBoolean(key, false)
                 plugin.config.set(key, next)
                 plugin.saveConfig()
-                fill(event.inventory)
+                fill(event.inventory, player)
                 MessageUtil.sendMessage(player, if (next) "&aHistory saving enabled." else "&cHistory saving disabled.")
             }
-            15 -> {
+            4 -> {
                 plugin.reloadConfig()
                 plugin.guiManager.reload()
                 plugin.pricesManager.reload()
                 for (p in Bukkit.getOnlinePlayers()) {
                     plugin.worthOverlay.refreshPlayer(p)
                 }
-                fill(event.inventory)
+                fill(event.inventory, player)
                 MessageUtil.sendMessage(player, "&aDSellSystem configuration reloaded!")
             }
+            5 -> {
+                if (!player.hasPermission("dsellsystem.resetworth")) {
+                    MessageUtil.sendMessage(player, "&cYou don't have permission to do that.")
+                    return
+                }
+                plugin.worthResetGUI.openRoot(player)
+            }
         }
+    }
+
+    private fun setBorders(inv: Inventory) {
+        val pane = borderPane()
+        inv.setItem(0, pane)
+        inv.setItem(1, pane)
+        inv.setItem(7, pane)
+        inv.setItem(8, pane)
+    }
+
+    private fun borderPane(): ItemStack {
+        val item = ItemStack(Material.GRAY_STAINED_GLASS_PANE)
+        val meta = item.itemMeta ?: return item
+        meta.displayName(MessageUtil.deserialize(" "))
+        item.itemMeta = meta
+        return item
+    }
+
+    private fun hasResetPermission(player: Player?): Boolean {
+        return player?.hasPermission("dsellsystem.resetworth") ?: true
     }
 }

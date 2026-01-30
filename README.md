@@ -50,12 +50,14 @@ Admin/staff commands:
 - `/dsellsystem` - Show plugin info.
 - `/dsellsystem settings` - Open the Settings GUI.
 - `/dsellsystem reload` - Reload configs and prices.
+- `/dsellsystem resetworth [player|all]` - Clear worth lore for a player or all online players.
 
 ## Permissions
 - `dsellsystem.reload` - Reload plugin configuration (default: op)
 - `dsellsystem.history.other` - View other players' histories (default: op)
 - `dsellsystem.setworth` - Edit prices with `/setworth` (default: op)
 - `dsellsystem.settings` - Open Settings menu (default: op)
+- `dsellsystem.resetworth` - Clear worth lore via command or settings (default: op)
 
 ## Menus
 - Sell GUI: main sell interface. Put items in slots 0-35 and click category icons to view progress.

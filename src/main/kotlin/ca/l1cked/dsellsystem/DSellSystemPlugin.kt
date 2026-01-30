@@ -9,6 +9,7 @@ import ca.l1cked.dsellsystem.gui.SellGUI
 import ca.l1cked.dsellsystem.gui.WorthGUI
 import ca.l1cked.dsellsystem.gui.SettingsGUI
 import ca.l1cked.dsellsystem.gui.HistoryGUI
+import ca.l1cked.dsellsystem.gui.WorthResetGUI
 import ca.l1cked.dsellsystem.managers.GUIManager
 import ca.l1cked.dsellsystem.managers.PricesManager
 import ca.l1cked.dsellsystem.managers.ProtocolWorthOverlay
@@ -59,6 +60,8 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
         private set
     lateinit var worthLoreManager: WorthLoreManager
         private set
+    lateinit var worthResetGUI: WorthResetGUI
+        private set
     lateinit var sellStorage: SellStorage
         private set
     lateinit var historyService: HistoryService
@@ -90,6 +93,7 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
         historyGUI = HistoryGUI(this)
         worthOverlay = ProtocolWorthOverlay(this)
         worthLoreManager = WorthLoreManager(this)
+        worthResetGUI = WorthResetGUI(this)
         mayorBridge = MayorCallbackBridge(this)
         sellStorage = SQLiteSellStorage(dataFolder).also { it.init() }
         historyService = HistoryService(economy, sellStorage, config.getInt("history.page_size", 10), config.getInt("history.breakdown_max", 5))
@@ -107,6 +111,7 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
         server.pluginManager.registerEvents(settingsGUI, this)
         server.pluginManager.registerEvents(historyGUI, this)
         server.pluginManager.registerEvents(worthLoreManager, this)
+        server.pluginManager.registerEvents(worthResetGUI, this)
 
         commandManager = PaperCommandManager.builder()
             .executionCoordinator(ExecutionCoordinator.simpleCoordinator())
