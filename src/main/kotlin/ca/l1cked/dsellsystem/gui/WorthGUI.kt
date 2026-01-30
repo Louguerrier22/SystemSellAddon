@@ -274,6 +274,10 @@ class WorthGUI(private val plugin: DSellSystemPlugin) : Listener {
         val prefix = MessageUtil.legacy(plugin.guiManager.getWorthGUITitle().split("%")[0].trim())
         if (!title.contains(prefix)) return
         event.isCancelled = true
+        val player = event.whoClicked as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            player.updateInventory()
+        })
     }
 
     @EventHandler

@@ -7,7 +7,7 @@ Advanced selling plugin for Paper servers. Turn your shop chest into a slick GUI
 - Worth/price browser with sorting and filtering
 - Per-category multipliers and progress tracking
 - History system with optional itemized sell logs (SQLite)
-- Optional worth-lore overlay when ProtocolLib is installed
+- Worth-lore overlay (requires ProtocolLib)
 - API events for integrations
 
 ## Requirements
@@ -16,8 +16,11 @@ Advanced selling plugin for Paper servers. Turn your shop chest into a slick GUI
 - Vault (required) + any Vault economy provider (EssentialsX Economy, EzEconomy, etc.)
 
 ## Optional Integrations
-- ProtocolLib: enables live worth-lore overlays in inventories
+- ProtocolLib (strongly recommended): enables live worth-lore overlays in inventories
 - MayorSystem: receives sell payout callbacks
+
+## ProtocolLib (Recommended)
+Worth lore is client-side only and requires ProtocolLib. Without ProtocolLib, worth will only appear in the `/worth` menu and no per-item lore will be shown in inventories.
 
 ## MayorSystem Bonus Support
 DSellSystem is pre-wired for MayorSystem’s `/sell` bonus flow. If MayorSystem is installed and enabled, DSellSystem will send sell payout snapshots automatically so MayorSystem can apply bonuses on top of the base payout.

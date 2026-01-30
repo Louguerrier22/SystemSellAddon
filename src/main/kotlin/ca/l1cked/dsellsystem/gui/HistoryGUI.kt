@@ -125,6 +125,10 @@ class HistoryGUI(private val plugin: DSellSystemPlugin) : Listener {
     fun onCreative(event: InventoryCreativeEvent) {
         val holder = event.view.topInventory.holder as? HistoryHolder ?: return
         event.isCancelled = true
+        val player = event.whoClicked as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            player.updateInventory()
+        })
     }
 
     @EventHandler

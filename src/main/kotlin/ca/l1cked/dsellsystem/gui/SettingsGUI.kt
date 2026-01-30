@@ -83,6 +83,10 @@ class SettingsGUI(private val plugin: DSellSystemPlugin) : Listener {
         val title = MessageUtil.serialize(event.view.title())
         if (title != MessageUtil.legacy("&8DSellSystem Settings")) return
         event.isCancelled = true
+        val player = event.whoClicked as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            player.updateInventory()
+        })
     }
 
     @EventHandler

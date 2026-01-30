@@ -142,6 +142,10 @@ class SellGUI(private val plugin: DSellSystemPlugin) : Listener {
         if (viewTitle != MessageUtil.legacy(title)) return
         if (!openInventories.containsKey(event.whoClicked.uniqueId)) return
         event.isCancelled = true
+        val player = event.whoClicked as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            player.updateInventory()
+        })
     }
 
     @EventHandler

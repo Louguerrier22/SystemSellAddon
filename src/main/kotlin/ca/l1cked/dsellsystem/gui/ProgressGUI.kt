@@ -205,6 +205,10 @@ class ProgressGUI(private val plugin: DSellSystemPlugin) : Listener {
         val expectedTitle = openInventories[event.whoClicked.uniqueId]
         if (expectedTitle != title) return
         event.isCancelled = true
+        val player = event.whoClicked as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            player.updateInventory()
+        })
     }
 
     @EventHandler

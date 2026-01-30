@@ -7,6 +7,7 @@ import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.ListenerPriority
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
+import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
@@ -32,7 +33,7 @@ class ProtocolWorthOverlay(private val plugin: DSellSystemPlugin) {
             PacketType.Play.Server.WINDOW_ITEMS,
         ) {
             override fun onPacketSending(event: PacketEvent) {
-                if (!isEnabled()) return
+                if (!isEnabled() || shouldSkipOverlay(event.player)) return
                 when (event.packetType) {
                     PacketType.Play.Server.SET_SLOT -> {
                         val item = event.packet.itemModifier.read(0)
@@ -64,6 +65,7 @@ class ProtocolWorthOverlay(private val plugin: DSellSystemPlugin) {
         val format = plugin.config.getString("settings.worth-lore.format", "&fWorth: &a$%price%")
             ?: ""
         if (format.isEmpty()) return item
+        val prefixLegacy = formatPrefixLegacy(format)
 
         val totalWorth = totalStackWorth(item, player)
         if (totalWorth <= 0.0) return item
@@ -73,7 +75,9 @@ class ProtocolWorthOverlay(private val plugin: DSellSystemPlugin) {
         val lore = meta.lore()?.toMutableList() ?: mutableListOf()
         lore.removeIf { line ->
             val raw = MessageUtil.serialize(line)
-            raw.contains(WORTH_LORE_MARKER) || raw.contains("Worth:")
+            raw.contains(WORTH_LORE_MARKER) ||
+                raw.contains(LEGACY_WORTH_LORE_MARKER) ||
+                (prefixLegacy.isNotEmpty() && raw.contains(prefixLegacy))
         }
 
         val line = format.replace("%price%", MessageUtil.formatMoney(totalWorth))
@@ -112,7 +116,31 @@ class ProtocolWorthOverlay(private val plugin: DSellSystemPlugin) {
     private fun isShulkerBox(material: Material): Boolean =
         material.name.contains("SHULKER_BOX")
 
+    private fun shouldSkipOverlay(player: Player): Boolean {
+        if (player.gameMode == GameMode.CREATIVE) return true
+        val title = MessageUtil.serialize(player.openInventory.title())
+        val skip = arrayOf(
+            MessageUtil.legacy(plugin.guiManager.getSellGUITitle()),
+            MessageUtil.legacy(plugin.guiManager.getWorthGUITitle().split("%")[0].trim()),
+            MessageUtil.legacy("ITEM PRICES"),
+        )
+        for (value in skip) {
+            if (value.isNotEmpty() && title.contains(value)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun formatPrefixLegacy(format: String): String {
+        val prefix = format.substringBefore("%price%")
+        if (prefix.isEmpty()) return ""
+        return MessageUtil.legacy(prefix)
+    }
+
     private companion object {
-        private const val WORTH_LORE_MARKER = "§x§w§o§r§t§h"
+        private const val WORTH_LORE_MARKER = "\u00A7x\u00A7w\u00A7o\u00A7r\u00A7t\u00A7h"
+        private const val LEGACY_WORTH_LORE_MARKER =
+            "\u00C2\u00A7x\u00C2\u00A7w\u00C2\u00A7o\u00C2\u00A7r\u00C2\u00A7t\u00C2\u00A7h"
     }
 }
