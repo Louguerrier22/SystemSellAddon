@@ -1,0 +1,390 @@
+inventories:
+  list-category-title: 'ᴘʟᴀᴄᴇ ɪᴛᴇᴍѕ ɪɴ ʜᴇʀᴇ ᴛᴏ ѕᴇʟʟ'
+
+progress-bar:
+  filled-prefix: '#00f986&m'
+  empty-prefix: '&f&m'
+  complete-char: ' '
+  incomplete-char: ' '
+  max-bars: 16
+
+progress-items:
+  WORKING:
+    type: YELLOW_STAINED_GLASS_PANE
+    display-name: '#fce300ᴡᴏʀᴋɪɴɢ'
+    lore:
+    - '#fce300%progress-bar% &f%multiplier%x %progress%%'
+    - '&7%current-spent%/%needing-spent%'
+  INCOMPLETE:
+    type: WHITE_STAINED_GLASS_PANE
+    display-name: 'ɪɴᴄᴏᴍᴘʟᴇᴛᴇ'
+    lore:
+    - '&f%progress-bar% &f%multiplier%x %progress%%'
+    - '&7%current-spent%/%needing-spent%'
+  COMPLETE:
+    type: LIME_STAINED_GLASS_PANE
+    display-name: '#00f986ᴄᴏᴍᴘʟᴇᴛᴇ'
+    lore:
+    - '#00f986%progress-bar% &f%multiplier%x %progress%%'
+    - '&7%current-spent%/%needing-spent%'
+
+back-button:
+  slot: 45
+  material: RED_STAINED_GLASS_PANE
+  name: '&cʙᴀᴄᴋ'
+  lore:
+  - '&7Click to return'
+
+categories:
+  CROPS:
+    progress-icon:
+      display-name: '#00f986ᴄʀᴏᴘѕ'
+      type: WHEAT
+      amount: 1
+      lore:
+      - '&fSell crops and farming materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ᴄʀᴏᴘѕ'
+      type: WHEAT
+      amount: 1
+      lore:
+      - '&fSell crops and farming materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 36
+    progress-title: 'ᴄʀᴏᴘѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  ORES:
+    progress-icon:
+      display-name: '#00f986ᴏʀᴇѕ'
+      type: DIAMOND
+      amount: 1
+      lore:
+      - '&fSell ores and mining materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ᴏʀᴇѕ'
+      type: DIAMOND
+      amount: 1
+      lore:
+      - '&fSell ores and mining materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 37
+    progress-title: 'ᴏʀᴇѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  MOBS:
+    progress-icon:
+      display-name: 'ᴍᴏʙ ᴅʀᴏᴘѕ'
+      type: BONE
+      amount: 1
+      lore:
+      - '&fSell mob drops and loot materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ᴍᴏʙ ᴅʀᴏᴘѕ'
+      type: BONE
+      amount: 1
+      lore:
+      - '&fSell mob drops and loot materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 38
+    progress-title: 'ᴍᴏʙ ᴅʀᴏᴘѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  NATURAL:
+    progress-icon:
+      display-name: '#00f986ɴᴀᴛʀᴜᴀʟ ɪᴛᴇᴍѕ'
+      type: OAK_LEAVES
+      amount: 1
+      lore:
+      - '&fSell natrual materials and trees materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ɴᴀᴛʀᴜᴀʟ ɪᴛᴇᴍѕ'
+      type: OAK_LEAVES
+      amount: 1
+      lore:
+      - '&fSell natrual materials and trees materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 39
+    progress-title: 'ɴᴀᴛʀᴜᴀʟ ɪᴛᴇᴍѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  ARMOR_AND_TOOLS:
+    progress-icon:
+      display-name: '#00f986ᴀʀᴍᴏʀ ᴀɴᴅ ᴛᴏᴏʟѕ'
+      type: NETHERITE_HELMET
+      amount: 1
+      lore:
+      - '&fSell armor and tools materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ᴀʀᴍᴏʀ ᴀɴᴅ ᴛᴏᴏʟѕ'
+      type: NETHERITE_HELMET
+      amount: 1
+      lore:
+      - '&fSell armor and tools materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 40
+    progress-title: 'ᴀʀᴍᴏʀ ᴀɴᴅ ᴛᴏᴏʟѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  FISH:
+    progress-icon:
+      display-name: '#00f986ꜰɪѕʜ'
+      type: TROPICAL_FISH
+      amount: 1
+      lore:
+      - '&fSell fish and other fishing loot to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ꜰɪѕʜ'
+      type: TROPICAL_FISH
+      amount: 1
+      lore:
+      - '&fSell fish and other fishing loot to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 41
+    progress-title: 'ꜰɪѕʜ ᴘʀᴏɢʀᴇѕѕ'
+    
+  BOOK:
+    progress-icon:
+      display-name: '#00f986ᴇɴᴄʜᴀɴᴛᴇᴅ ʙᴏᴏᴋѕ'
+      type: BOOK
+      amount: 1
+      lore:
+      - '&fSell books and entchanted books to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ᴇɴᴄʜᴀɴᴛᴇᴅ ʙᴏᴏᴋѕ'
+      type: BOOK
+      amount: 1
+      lore:
+      - '&fSell books and entchanted books to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 42
+    progress-title: 'ᴇɴᴄʜᴀɴᴛᴇᴅ ʙᴏᴏᴋѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  POTIONS:
+    progress-icon:
+      display-name: '#00f986ᴘᴏᴛɪᴏɴѕ'
+      type: BREWING_STAND
+      amount: 1
+      lore:
+      - '&fSell potions and brewing materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ᴘᴏᴛɪᴏɴѕ'
+      type: BREWING_STAND
+      amount: 1
+      lore:
+      - '&fSell potions and brewing materials to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 43
+    progress-title: 'ᴘᴏᴛɪᴏɴѕ ᴘʀᴏɢʀᴇѕѕ'
+    
+  BLOCKS:
+    progress-icon:
+      display-name: '#00f986ʙʟᴏᴄᴋѕ'
+      type: BRICK
+      amount: 1
+      lore:
+      - '&fSell blocks and placeable items to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fView your progress below'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    categories-icon:
+      display-name: '#00f986ʙʟᴏᴄᴋѕ'
+      type: BRICK
+      amount: 1
+      lore:
+      - '&fSell blocks and placeable items to'
+      - '&fupgrade ur sell multiplier!'
+      - ''
+      - '&fProgress to &f%multiplier%x'
+      - '#fce300%progress-bar% &f%progress%'
+      flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+      custom-model-data: 1
+      enchantments:
+      - DAMAGE_ALL:1
+    inventory-slot: 44
+    progress-title: 'ʙʟᴏᴄᴋѕ ᴘʀᴏɢʀᴇѕѕ'
+
+worth-gui:
+  title: 'ɪᴛᴇᴍ ᴘʀɪᴄᴇꜱ (Page %page%/%total%)'
+
+  sort-button:
+    type: CAULDRON
+    display-name: '#00f986sᴏʀᴛ'
+    lore-selected: '#00f986• %option%'
+    lore-unselected: '§f• %option%'
+    
+  refresh-button:
+    type: ANVIL
+    display-name: '#00f986ɪᴛᴇᴍ ᴘʀɪᴄᴇs'
+    lore:
+    - '§fClick to refresh'
+
+  filter-button:
+    type: HOPPER
+    display-name: '#00f986ғɪʟᴛᴇʀ'
+    lore-selected: '#00f986• %option%'
+    lore-unselected: '§f• %option%'
+
+  previous-button:
+    type: ARROW
+    display-name: '#00f986ᴘʀᴇᴠɪᴏᴜs'
+    lore:
+    - '§fClick to go to previous page'
+    
+  next-button:
+    type: ARROW
+    display-name: '#00f986ɴᴇxᴛ'
+    lore:
+    - '§fClick to go to next page'
+    
+  item-display:
+    name-color: '#00f986'
+    lore:
+    - '§fPrice: #00f900$%price%'
