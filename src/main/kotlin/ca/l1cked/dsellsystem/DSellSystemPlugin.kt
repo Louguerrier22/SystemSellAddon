@@ -97,6 +97,7 @@ class DSellSystemPlugin : JavaPlugin(), DSellSystemApi {
         mayorBridge = MayorCallbackBridge(this)
         sellStorage = SQLiteSellStorage(dataFolder).also { it.init() }
         historyService = HistoryService(economy, sellStorage, config.getInt("history.page_size", 10), config.getInt("history.breakdown_max", 5))
+        ioScope.launch { historyService.refreshKnownNames() }
         val retentionDays = config.getInt("history.retention_days", 14)
         if (retentionDays > 0) {
             val cutoff = System.currentTimeMillis() - (retentionDays.toLong() * 24L * 60L * 60L * 1000L)

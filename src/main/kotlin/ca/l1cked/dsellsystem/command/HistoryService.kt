@@ -18,6 +18,7 @@ class HistoryService(
 ) {
 
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
+    @Volatile private var knownNameCache: List<String> = emptyList()
 
     fun historyFor(player: Player): List<SellTransaction> {
         return storage.getHistory(player.uniqueId, pageSize)
@@ -70,11 +71,15 @@ class HistoryService(
     fun suggestions(prefix: String, limit: Int = 50): List<String> {
         val lower = prefix.lowercase()
         val online = Bukkit.getOnlinePlayers().map { it.name }
-        val known = storage.knownNames(limit = 200)
+        val known = knownNameCache
         return (online + known)
             .distinct()
             .filter { it.lowercase().startsWith(lower) }
             .take(limit)
+    }
+
+    fun refreshKnownNames(limit: Int = 200) {
+        knownNameCache = storage.knownNames(limit)
     }
 
     private fun trimMultiplier(value: Double): String {

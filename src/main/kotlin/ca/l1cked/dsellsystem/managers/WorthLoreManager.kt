@@ -38,6 +38,7 @@ class WorthLoreManager(private val plugin: DSellSystemPlugin) : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
+        plugin.playerDataManager.getPlayerData(player.uniqueId)
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             updateInventory(player)
         }, 20L)

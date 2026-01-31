@@ -27,7 +27,9 @@ class SettingsGUI(private val plugin: DSellSystemPlugin) : Listener {
         setBorders(inv)
         inv.setItem(2, toggleItem("Plugin", plugin.config.getBoolean("settings.enabled", true)))
         inv.setItem(3, toggleItem("History", plugin.config.getBoolean("history.enabled", false)))
-        inv.setItem(4, actionItem("Reload", Material.NETHER_STAR, "&aReload config"))
+        if (hasReloadPermission(viewer)) {
+            inv.setItem(4, actionItem("Reload", Material.NETHER_STAR, "&aReload config"))
+        }
         if (hasResetPermission(viewer)) {
             inv.setItem(5, actionItem("Reset Worth Lore", Material.SPONGE, "&7Open reset menu"))
         }
@@ -125,6 +127,10 @@ class SettingsGUI(private val plugin: DSellSystemPlugin) : Listener {
                 MessageUtil.sendMessage(player, if (next) "&aHistory saving enabled." else "&cHistory saving disabled.")
             }
             4 -> {
+                if (!player.hasPermission("dsellsystem.reload")) {
+                    MessageUtil.sendMessage(player, "&cYou don't have permission to do that.")
+                    return
+                }
                 plugin.reloadConfig()
                 plugin.guiManager.reload()
                 plugin.pricesManager.reload()
@@ -162,5 +168,9 @@ class SettingsGUI(private val plugin: DSellSystemPlugin) : Listener {
 
     private fun hasResetPermission(player: Player?): Boolean {
         return player?.hasPermission("dsellsystem.resetworth") ?: true
+    }
+
+    private fun hasReloadPermission(player: Player?): Boolean {
+        return player?.hasPermission("dsellsystem.reload") ?: true
     }
 }

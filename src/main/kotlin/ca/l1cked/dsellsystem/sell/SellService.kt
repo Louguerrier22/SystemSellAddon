@@ -92,69 +92,95 @@ class SellService(
 
         val now = System.currentTimeMillis()
         val historyEnabled = DSellSystemPlugin.instance.config.getBoolean("history.enabled", false)
-        val txId = if (historyEnabled) {
-            storage.recordSell(
-                playerUuid = player.uniqueId,
-                playerName = player.name,
-                timestampMillis = now,
-                personalMultiplier = multiplier,
-                paidByCategory = paidByCategory,
+        val paidByCategorySnapshot = paidByCategory.toMap()
+        val soldItemsSnapshot = soldItems.map { it.clone() }
+
+        val fireEvents: (Long?) -> Unit = { txId ->
+            if (DSellPayoutSummaryEvent.hasListeners()) {
+                Bukkit.getPluginManager().callEvent(
+                    DSellPayoutSummaryEvent(
+                        player = player,
+                        personalMultiplier = multiplier,
+                        totalPaid = total,
+                        transactionId = txId,
+                        timestampMillis = now,
+                    )
+                )
+            }
+
+            if (categoryTotals != null) {
+                for ((categoryKey, paid) in paidByCategorySnapshot) {
+                    val id = Category.idForKey(categoryKey) ?: continue
+                    categoryTotals[id] += paid
+                }
+                val (ids, paid) = buildCategoryPayload(categoryTotals)
+                Bukkit.getPluginManager().callEvent(
+                    DSellPayoutEvent(
+                        player = player,
+                        categoryIds = ids,
+                        paidByCategory = paid,
+                        personalMultiplier = multiplier,
+                        totalPaid = total,
+                        transactionId = txId,
+                        timestampMillis = now,
+                    )
+                )
+            }
+
+            notifyMayorCallback(
+                playerId = player.uniqueId,
+                paidByCategory = paidByCategorySnapshot,
                 totalPaid = total,
+                timestampMillis = now,
+                transactionId = txId?.toString(),
             )
-        } else {
-            -1L
         }
-        if (historyEnabled && soldItems.isNotEmpty()) {
+
+        if (historyEnabled) {
             DSellSystemPlugin.instance.ioScope.launch {
-                storage.recordSellItems(txId, soldItems)
+                val txId = try {
+                    storage.recordSell(
+                        playerUuid = player.uniqueId,
+                        playerName = player.name,
+                        timestampMillis = now,
+                        personalMultiplier = multiplier,
+                        paidByCategory = paidByCategorySnapshot,
+                        totalPaid = total,
+                    )
+                } catch (t: Throwable) {
+                    DSellSystemPlugin.instance.logger.severe("Failed to record sell history for ${player.name}")
+                    t.printStackTrace()
+                    -1L
+                }
+
+                if (txId > 0 && soldItemsSnapshot.isNotEmpty()) {
+                    try {
+                        storage.recordSellItems(txId, soldItemsSnapshot)
+                    } catch (t: Throwable) {
+                        DSellSystemPlugin.instance.logger.severe("Failed to record sell item history for ${player.name}")
+                        t.printStackTrace()
+                    }
+                }
+
+                try {
+                    DSellSystemPlugin.instance.historyService.refreshKnownNames()
+                } catch (_: Throwable) {
+                    // ignore cache refresh failures
+                }
+
+                DSellSystemPlugin.instance.server.scheduler.runTask(DSellSystemPlugin.instance, Runnable {
+                    fireEvents(if (txId > 0) txId else null)
+                })
             }
+        } else {
+            fireEvents(null)
         }
-
-        val txIdForEvents = if (historyEnabled) txId else null
-        if (DSellPayoutSummaryEvent.hasListeners()) {
-            Bukkit.getPluginManager().callEvent(
-                DSellPayoutSummaryEvent(
-                    player = player,
-                    personalMultiplier = multiplier,
-                    totalPaid = total,
-                    transactionId = txIdForEvents,
-                    timestampMillis = now,
-                )
-            )
-        }
-
-        if (categoryTotals != null) {
-            for ((categoryKey, paid) in paidByCategory) {
-                val id = Category.idForKey(categoryKey) ?: continue
-                categoryTotals[id] += paid
-            }
-            val (ids, paid) = buildCategoryPayload(categoryTotals)
-            Bukkit.getPluginManager().callEvent(
-                DSellPayoutEvent(
-                    player = player,
-                    categoryIds = ids,
-                    paidByCategory = paid,
-                    personalMultiplier = multiplier,
-                    totalPaid = total,
-                    transactionId = txIdForEvents,
-                    timestampMillis = now,
-                )
-            )
-        }
-
-        notifyMayorCallback(
-            playerId = player.uniqueId,
-            paidByCategory = paidByCategory,
-            totalPaid = total,
-            timestampMillis = now,
-            transactionId = txIdForEvents?.toString(),
-        )
 
         return SellOutcome.Success(
             SellResult(
-                transactionId = txId,
+                transactionId = -1L,
                 personalMultiplier = multiplier,
-                paidByCategory = paidByCategory,
+                paidByCategory = paidByCategorySnapshot,
                 categoryDisplays = displays,
                 totalPaid = total,
                 timestampMillis = now,

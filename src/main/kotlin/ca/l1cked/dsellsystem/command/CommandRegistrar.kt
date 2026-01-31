@@ -14,6 +14,7 @@ import org.incendo.cloud.parser.standard.DoubleParser
 import org.incendo.cloud.parser.standard.StringParser
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.bukkit.GameMode
+import kotlinx.coroutines.launch
 
 object CommandRegistrar {
     fun register(
@@ -73,17 +74,21 @@ object CommandRegistrar {
                         sender.sendMessage(MessageUtil.deserialize("&cHistory saving is disabled."))
                         return@handler
                     }
-                    val name = ctx.get("player") as String
-                    val uuid = plugin.sellStorage.resolveUuidByLastKnownName(name)
-                    if (uuid == null) {
-                        sender.sendMessage(MessageUtil.deserialize("&7No history found for &f$name&7."))
-                        return@handler
-                    }
                     if (sender !is Player) {
                         sender.sendMessage(MessageUtil.deserialize("&cThis command can only be used by players."))
                         return@handler
                     }
-                    plugin.historyGUI.open(sender, uuid, name)
+                    val name = ctx.get("player") as String
+                    plugin.ioScope.launch {
+                        val uuid = plugin.sellStorage.resolveUuidByLastKnownName(name)
+                        plugin.server.scheduler.runTask(plugin, Runnable {
+                            if (uuid == null) {
+                                sender.sendMessage(MessageUtil.deserialize("&7No history found for &f$name&7."))
+                                return@Runnable
+                            }
+                            plugin.historyGUI.open(sender, uuid, name)
+                        })
+                    }
                 }
         )
 

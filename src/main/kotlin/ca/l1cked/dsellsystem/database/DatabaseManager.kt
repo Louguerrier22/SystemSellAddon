@@ -8,6 +8,7 @@ import java.sql.SQLException
 
 class DatabaseManager(private val plugin: DSellSystemPlugin) {
     private var connection: Connection? = null
+    private val lock = Any()
 
     fun connect() {
         val folder = plugin.dataFolder
@@ -53,6 +54,13 @@ class DatabaseManager(private val plugin: DSellSystemPlugin) {
             connect()
         }
         return connection ?: throw SQLException("Connection is not available")
+    }
+
+    fun <T> withConnection(action: (Connection) -> T): T {
+        synchronized(lock) {
+            val conn = getConnection()
+            return action(conn)
+        }
     }
 
     fun disconnect() {
