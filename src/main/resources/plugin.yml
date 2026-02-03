@@ -1,5 +1,5 @@
-﻿name: ${name}
-version: ${version}
+﻿name: DSellSystem
+version: 1.0.0
 main: ca.l1cked.dsellsystem.DSellSystemPlugin
 api-version: 1.21
 depend: [Vault]
