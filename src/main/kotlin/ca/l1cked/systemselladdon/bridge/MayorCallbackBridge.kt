@@ -134,8 +134,8 @@ class MayorCallbackBridge(private val plugin: SystemSellAddonPlugin) {
     }
 
     private companion object {
-        const val MAYOR_CALLBACK_CLASS = "mayorSystem.econ.MayorSellCallback"
-        const val MAYOR_SNAPSHOT_CLASS = "mayorSystem.econ.DSellPayoutSnapshot"
+        const val MAYOR_CALLBACK_CLASS = "mayorSystem.economy.MayorSellCallback"
+        const val MAYOR_SNAPSHOT_CLASS = "mayorSystem.economy.DSellPayoutSnapshot"
     }
 }
 
