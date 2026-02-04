@@ -1,6 +1,6 @@
 # SystemSellAddon
 
-Advanced selling plugin for Paper servers. Turn your shop chest into a slick GUI, sell by category, and level up multipliers while your economy sings.
+Advanced selling plugin for Paper servers. Sell by category and level up multipliers while your economy sings.
 
 ## Features
 - GUI-based selling with category progress and multiplier upgrades
