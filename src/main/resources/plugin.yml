@@ -1,6 +1,6 @@
-﻿name: DSellSystem
+name: SystemSellAddon
 version: 1.0.0
-main: ca.l1cked.dsellsystem.DSellSystemPlugin
+main: ca.l1cked.systemselladdon.SystemSellAddonPlugin
 api-version: 1.21
 depend: [Vault]
 softdepend: [ProtocolLib, EzEconomy]
@@ -8,21 +8,24 @@ author: L1cked
 description: Advanced selling plugin with multiplier progression system
 
 permissions:
-  dsellsystem.reload:
+  systemselladdon.reload:
     description: Allows reloading the plugin configuration
     default: op
 
-  dsellsystem.history.other:
+  systemselladdon.history.other:
     description: Allows viewing /sell history for other players
     default: op
-  dsellsystem.setworth:
+  systemselladdon.setworth:
     description: Allows setting item prices with /setworth
     default: op
 
-  dsellsystem.settings:
+  systemselladdon.settings:
     description: Allows opening the settings menu
     default: op
 
-  dsellsystem.resetworth:
+  systemselladdon.resetworth:
     description: Allows clearing worth lore for players
     default: op
+
+
+

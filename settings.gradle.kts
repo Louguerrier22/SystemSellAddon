@@ -1,1 +1,2 @@
-rootProject.name = "DSellSystem"
+rootProject.name = "SystemSellAddon"
+

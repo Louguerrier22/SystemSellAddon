@@ -24,7 +24,8 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
+    // 5.4.x includes support for Paper 1.21.8
+    compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     compileOnly(fileTree("../MayorSystem/build/libs") { include("*.jar") })
 
     // Shaded into the final jar

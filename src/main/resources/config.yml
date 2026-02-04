@@ -34,7 +34,7 @@ settings:
     format: '&7Worth: &a$%price%'
 
 messages:
-  disabled: "&cDSellSystem is currently disabled."
+  disabled: "&cSystemSellAddon is currently disabled."
   sold-total: '#00f900+$%amount%'
   sold-total-action-bar: '#00f900+$%amount%'
   sold-total-title: ''
@@ -49,3 +49,6 @@ history:
   enabled: false
   page_size: 10
   breakdown_max: 5
+
+
+

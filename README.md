@@ -1,4 +1,4 @@
-# DSellSystem
+# SystemSellAddon
 
 Advanced selling plugin for Paper servers. Turn your shop chest into a slick GUI, sell by category, and level up multipliers while your economy sings.
 
@@ -23,11 +23,11 @@ Advanced selling plugin for Paper servers. Turn your shop chest into a slick GUI
 Worth lore is client-side only and requires ProtocolLib. Without ProtocolLib, worth will only appear in the `/worth` menu and no per-item lore will be shown in inventories.
 
 ## MayorSystem Bonus Support
-DSellSystem is pre-wired for MayorSystem’s `/sell` bonus flow. If MayorSystem is installed and enabled, DSellSystem will send sell payout snapshots automatically so MayorSystem can apply bonuses on top of the base payout.
+SystemSellAddon is pre-wired for MayorSystem’s `/sell` bonus flow. If MayorSystem is installed and enabled, SystemSellAddon will send sell payout snapshots automatically so MayorSystem can apply bonuses on top of the base payout.
 
 Why it’s nice:
 - No extra hooks or config needed
-- Bonuses can be applied after DSellSystem’s multipliers
+- Bonuses can be applied after SystemSellAddon’s multipliers
 - Works for category breakdowns and total payouts
 
 ## Install
@@ -35,7 +35,7 @@ Why it’s nice:
 2. Install Vault and an economy provider.
 3. Start the server to generate configs.
 4. Customize `config.yml`, `gui.yml`, and `prices.yml`.
-5. Reload with `/dsellsystem reload` or the Settings menu.
+5. Reload with `/systemselladdon reload` or the Settings menu.
 
 ## Commands
 Player commands:
@@ -47,17 +47,17 @@ Player commands:
 Admin/staff commands:
 - `/sell history <player>` - View another player's history.
 - `/setworth <item> <price>` - Set a price for a material (must exist in `prices.yml`).
-- `/dsellsystem` - Show plugin info.
-- `/dsellsystem settings` - Open the Settings GUI.
-- `/dsellsystem reload` - Reload configs and prices.
-- `/dsellsystem resetworth [player|all]` - Clear worth lore for a player or all online players.
+- `/systemselladdon` - Show plugin info.
+- `/systemselladdon settings` - Open the Settings GUI.
+- `/systemselladdon reload` - Reload configs and prices.
+- `/systemselladdon resetworth [player|all]` - Clear worth lore for a player or all online players.
 
 ## Permissions
-- `dsellsystem.reload` - Reload plugin configuration (default: op)
-- `dsellsystem.history.other` - View other players' histories (default: op)
-- `dsellsystem.setworth` - Edit prices with `/setworth` (default: op)
-- `dsellsystem.settings` - Open Settings menu (default: op)
-- `dsellsystem.resetworth` - Clear worth lore via command or settings (default: op)
+- `systemselladdon.reload` - Reload plugin configuration (default: op)
+- `systemselladdon.history.other` - View other players' histories (default: op)
+- `systemselladdon.setworth` - Edit prices with `/setworth` (default: op)
+- `systemselladdon.settings` - Open Settings menu (default: op)
+- `systemselladdon.resetworth` - Clear worth lore via command or settings (default: op)
 
 ## Menus
 - Sell GUI: main sell interface. Put items in slots 0-35 and click category icons to view progress.
@@ -67,7 +67,7 @@ Admin/staff commands:
 - History GUI: paginated list of sold items with timestamps and worth.
 
 ## Configuration
-All files live in `plugins/DSellSystem/`:
+All files live in `plugins/SystemSellAddon/`:
 
 `config.yml`
 - `settings.enabled` - Toggle all selling
@@ -87,18 +87,18 @@ All files live in `plugins/DSellSystem/`:
   `CROPS`, `ORES`, `MOBS`, `NATURAL`, `ARMOR_AND_TOOLS`, `FISH`, `BOOK`, `POTIONS`, `BLOCKS`.
 
 ## Data Storage
-- SQLite database stored at `plugins/DSellSystem/dsellsystem.db`
+- SQLite database stored at `plugins/SystemSellAddon/systemselladdon.db`
 - Transaction history and itemized history (if enabled)
 
 ## API / Events
 Integrations should listen to:
-- `DSellPayoutSummaryEvent` (totals only)
-- `DSellPayoutEvent` (totals + per-category breakdown)
+- `SystemSellAddonPayoutSummaryEvent` (totals only)
+- `SystemSellAddonPayoutEvent` (totals + per-category breakdown)
 
 Services:
-- `DSellSystemApi` is registered with Bukkit's ServicesManager.
+- `SystemSellAddonApi` is registered with Bukkit's ServicesManager.
 
-Note: DSellSystem payouts already include the internal multiplier. Apply any external bonuses after the event.
+Note: SystemSellAddon payouts already include the internal multiplier. Apply any external bonuses after the event.
 
 ## Build
 ```bash
@@ -114,3 +114,8 @@ Need help or want a feature? Open an issue in this repo with:
 - Relevant config sections
 
 Have fun selling. May your multipliers be ever in your favor.
+
+
+
+
+
