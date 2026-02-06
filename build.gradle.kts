@@ -32,6 +32,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.incendo:cloud-paper:2.0.0-beta.14")
     implementation("org.xerial:sqlite-jdbc:3.46.1.0")
+    implementation("com.mysql:mysql-connector-j:8.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 }
 

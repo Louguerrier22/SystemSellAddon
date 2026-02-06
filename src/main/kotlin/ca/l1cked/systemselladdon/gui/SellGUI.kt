@@ -4,6 +4,7 @@ import ca.l1cked.systemselladdon.SystemSellAddonPlugin
 import ca.l1cked.systemselladdon.api.event.SystemSellAddonPayoutEvent
 import ca.l1cked.systemselladdon.api.event.SystemSellAddonPayoutSummaryEvent
 import ca.l1cked.systemselladdon.category.Category
+import ca.l1cked.systemselladdon.util.LevelPriceUtil
 import ca.l1cked.systemselladdon.util.MessageUtil
 import io.papermc.paper.registry.RegistryAccess
 import io.papermc.paper.registry.RegistryKey
@@ -101,9 +102,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val base = plugin.config.getDouble("settings.base-multiplier", 1.0)
         val increment = plugin.config.getDouble("settings.multiplier-increment", 0.1)
         val level = Math.round((multiplier - base) / increment).toInt()
-        val prices = plugin.config.getIntegerList("level-prices")
-        if (prices.isEmpty()) return 500000.0
-        return if (level < prices.size) prices[level].toDouble() else prices[prices.size - 1].toDouble()
+        return LevelPriceUtil.getPriceForLevel(plugin.config, level)
     }
 
     @EventHandler
@@ -180,7 +179,10 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                 if (item.type == Material.AIR) continue
                 player.inventory.addItem(item)
             }
-            MessageUtil.sendMessage(player, plugin.config.getString("messages.disabled", "&cSystemSellAddon is currently disabled.") ?: "&cSystemSellAddon is currently disabled.")
+            val disabled = applyPrefix(
+                plugin.config.getString("messages.disabled", "&cSystemSellAddon is currently disabled.")
+            )
+            MessageUtil.sendMessage(player, disabled)
             openInventories.remove(player.uniqueId)
             return
         }
@@ -267,13 +269,17 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             plugin.economy.depositPlayer(player, total)
             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f)
 
-            val soldTotal = plugin.config.getString("messages.sold-total", "#00f900+$%amount%")
+            val soldTotal = applyPrefix(
+                plugin.config.getString("messages.sold-total", "&a+$%amount%")
+            )
             if (!soldTotal.isNullOrEmpty()) {
                 val msg = soldTotal.replace("%amount%", MessageUtil.formatMoney(total))
                 MessageUtil.sendMessage(player, msg)
             }
 
-            val actionBar = plugin.config.getString("messages.sold-total-action-bar", "")
+            val actionBar = applyPrefix(
+                plugin.config.getString("messages.sold-total-action-bar", "")
+            )
             if (!actionBar.isNullOrEmpty()) {
                 val msg = actionBar.replace("%amount%", MessageUtil.formatMoney(total))
                 MessageUtil.sendActionBar(player, msg)
@@ -283,10 +289,12 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             if (showBreakdown) {
                 for ((materialName, quantity) in itemsSold) {
                     val itemName = materialName.replace("_", " ").lowercase()
-                    val template = plugin.config.getString(
-                        "messages.item-sold",
-                        "&a+$%amount% &7(%item% x%quantity%)",
-                    ) ?: ""
+                    val template = applyPrefix(
+                        plugin.config.getString(
+                            "messages.item-sold",
+                            "&a+$%amount% &7(%item% x%quantity%)",
+                        )
+                    )
                     val itemPrice = getItemBasePrice(ItemStack(Material.valueOf(materialName)))
                     val line = template
                         .replace("%amount%", String.format("%.2f", itemPrice * quantity))
@@ -306,7 +314,9 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                 while (currentProgress >= required && currentMultiplier < maxMultiplier) {
                     data.setProgress(category, currentProgress - required)
                     data.setMultiplier(category, currentMultiplier + increment)
-                    var message = plugin.config.getString("messages.multiplier-upgrade", "")
+                    var message = applyPrefix(
+                        plugin.config.getString("messages.multiplier-upgrade", "")
+                    )
                     if (!message.isNullOrEmpty()) {
                         message = message
                             .replace("%category%", category.displayName)
@@ -431,6 +441,12 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
 
     private fun getItemCategory(material: Material): Category? =
         plugin.pricesManager.getCategory(material)
+
+    private fun applyPrefix(raw: String?): String {
+        if (raw.isNullOrEmpty()) return ""
+        val prefix = plugin.config.getString("messages.prefix", "") ?: ""
+        return raw.replace("{prefix}", prefix)
+    }
 
     private fun parseEnchantment(name: String): Enchantment? {
         val lowered = name.lowercase()

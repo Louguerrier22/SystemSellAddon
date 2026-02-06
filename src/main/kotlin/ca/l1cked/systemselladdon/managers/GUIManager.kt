@@ -2,39 +2,171 @@ package ca.l1cked.systemselladdon.managers
 
 import ca.l1cked.systemselladdon.SystemSellAddonPlugin
 import org.bukkit.Material
-import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemFlag
-import java.io.File
-import java.io.IOException
-import java.nio.file.Files
 
 class GUIManager(private val plugin: SystemSellAddonPlugin) {
-    private lateinit var guiFile: File
-    private lateinit var guiConfig: FileConfiguration
+    private data class IconSpec(
+        val material: Material,
+        val name: String,
+        val lore: List<String>,
+        val flags: List<ItemFlag> = emptyList(),
+        val customModelData: Int = 0,
+        val enchantments: List<String> = emptyList(),
+    )
 
-    init {
-        loadGUI()
-    }
+    private data class CategorySpec(
+        val slot: Int,
+        val progressTitle: String,
+        val categoryIcon: IconSpec,
+        val progressIcon: IconSpec,
+    )
 
-    private fun loadGUI() {
-        guiFile = File(plugin.dataFolder, "gui.yml")
-        if (!guiFile.exists()) {
-            guiFile.parentFile.mkdirs()
-            try {
-                plugin.getResource("gui.yml")?.use { input ->
-                    Files.copy(input, guiFile.toPath())
-                } ?: guiFile.createNewFile()
-            } catch (e: IOException) {
-                plugin.logger.severe("Could not create gui.yml!")
-                e.printStackTrace()
-            }
-        }
-        guiConfig = YamlConfiguration.loadConfiguration(guiFile)
-    }
+    private data class ProgressItemSpec(
+        val material: Material,
+        val name: String,
+        val lore: List<String>,
+    )
 
-    fun getSellGUITitle(): String =
-        guiConfig.getString("inventories.list-category-title", "Place items in here to sell") ?: ""
+    private data class ButtonSpec(
+        val slot: Int,
+        val material: Material,
+        val name: String,
+        val lore: List<String>,
+    )
+
+    private val sellTitle = "&8System Sell Menu"
+
+    private val progressBarFilledPrefix = "&2"
+    private val progressBarEmptyPrefix = "&7"
+    private val progressBarCompleteChar = "#"
+    private val progressBarIncompleteChar = "-"
+    private val progressBarMaxBars = 16
+
+    private val backButton = ButtonSpec(
+        slot = 49,
+        material = Material.BARRIER,
+        name = "&cReturn",
+        lore = listOf("&7Back to the sell bay"),
+    )
+
+    private val progressItems = mapOf(
+        "WORKING" to ProgressItemSpec(
+            material = Material.ORANGE_STAINED_GLASS_PANE,
+            name = "&6Active Tier",
+            lore = listOf(
+                "%progress-bar% &f%multiplier%x &7(%progress%%)",
+                "&7%current-spent%/%needing-spent%",
+            ),
+        ),
+        "INCOMPLETE" to ProgressItemSpec(
+            material = Material.GRAY_STAINED_GLASS_PANE,
+            name = "&7Locked Tier",
+            lore = listOf(
+                "%progress-bar% &f%multiplier%x &7(%progress%%)",
+                "&7%current-spent%/%needing-spent%",
+            ),
+        ),
+        "COMPLETE" to ProgressItemSpec(
+            material = Material.GREEN_STAINED_GLASS_PANE,
+            name = "&aCleared Tier",
+            lore = listOf(
+                "%progress-bar% &f%multiplier%x &7(%progress%%)",
+                "&7%current-spent%/%needing-spent%",
+            ),
+        ),
+    )
+
+    private val categorySpecs = mapOf(
+        "CROPS" to buildCategory(
+            slot = 36,
+            title = "&8Crops Progress",
+            name = "&eCROPS",
+            material = Material.HAY_BLOCK,
+            summary = "crops and farming materials",
+        ),
+        "ORES" to buildCategory(
+            slot = 37,
+            title = "&8Ores Progress",
+            name = "&bORES",
+            material = Material.AMETHYST_CLUSTER,
+            summary = "ores and mining materials",
+        ),
+        "MOBS" to buildCategory(
+            slot = 38,
+            title = "&8Mobs Progress",
+            name = "&aMOBS",
+            material = Material.SPIDER_EYE,
+            summary = "mob drops and loot materials",
+        ),
+        "NATURAL" to buildCategory(
+            slot = 39,
+            title = "&8Natural Progress",
+            name = "&aNATURAL",
+            material = Material.OAK_SAPLING,
+            summary = "natural materials",
+        ),
+        "ARMOR_AND_TOOLS" to buildCategory(
+            slot = 40,
+            title = "&8Armor & Tools Progress",
+            name = "&aARMOR AND TOOLS",
+            material = Material.ANVIL,
+            summary = "armor and tools materials",
+        ),
+        "FISH" to buildCategory(
+            slot = 41,
+            title = "&8Fish Progress",
+            name = "&bFISH",
+            material = Material.COD_BUCKET,
+            summary = "fish and fishing loot",
+        ),
+        "BOOK" to buildCategory(
+            slot = 42,
+            title = "&8Books Progress",
+            name = "&bBOOK",
+            material = Material.LECTERN,
+            summary = "books and enchanted books",
+        ),
+        "POTIONS" to buildCategory(
+            slot = 43,
+            title = "&8Potions Progress",
+            name = "&dPOTIONS",
+            material = Material.DRAGON_BREATH,
+            summary = "potions and brewing items",
+        ),
+        "BLOCKS" to buildCategory(
+            slot = 44,
+            title = "&8Blocks Progress",
+            name = "&bBLOCKS",
+            material = Material.STONE_BRICKS,
+            summary = "blocks and placeables",
+        ),
+    )
+
+    private val worthTitle = "&8Market Ledger &7(Page %page%/%total%)"
+    private val worthSortButtonMaterial = Material.COMPASS
+    private val worthSortButtonName = "&aSort"
+    private val worthSortSelected = "&a> %option%"
+    private val worthSortUnselected = "&7  %option%"
+
+    private val worthRefreshButtonMaterial = Material.CLOCK
+    private val worthRefreshButtonName = "&aRescan Prices"
+    private val worthRefreshButtonLore = listOf("&7Click to refresh")
+
+    private val worthFilterButtonMaterial = Material.HOPPER
+    private val worthFilterButtonName = "&aFilter"
+    private val worthFilterSelected = "&a> %option%"
+    private val worthFilterUnselected = "&7  %option%"
+
+    private val worthNavigationMaterial = Material.ARROW
+    private val worthPreviousButtonName = "&aBack"
+    private val worthNextButtonName = "&aForward"
+    private val worthPreviousButtonLore = listOf("&7Previous page")
+    private val worthNextButtonLore = listOf("&7Next page")
+
+    private val worthItemNameColor = "&a"
+    private val worthItemLore = listOf("&7Price: &a$%price%")
+
+    fun getSellGUITitle(): String = sellTitle
 
     fun getSellGUISize(): Int = 45
 
@@ -43,82 +175,73 @@ class GUIManager(private val plugin: SystemSellAddonPlugin) {
     fun areCategoryIconsEnabled(): Boolean = true
 
     fun getProgressGUITitle(categoryKey: String): String =
-        guiConfig.getString("categories.$categoryKey.progress-title", "$categoryKey Progress") ?: ""
+        categorySpecs[categoryKey]?.progressTitle ?: "$categoryKey Progress"
 
     fun getCategorySlot(categoryKey: String): Int =
-        guiConfig.getInt("categories.$categoryKey.inventory-slot", 36)
+        categorySpecs[categoryKey]?.slot ?: 36
 
-    fun getBackButtonSlot(): Int =
-        guiConfig.getInt("back-button.slot", 45)
+    fun getBackButtonSlot(): Int = backButton.slot
 
-    fun getBackButtonMaterial(): Material =
-        parseMaterial(guiConfig.getString("back-button.material"), Material.RED_STAINED_GLASS_PANE)
+    fun getBackButtonMaterial(): Material = backButton.material
 
-    fun getBackButtonName(): String =
-        guiConfig.getString("back-button.name", "&cBACK") ?: ""
+    fun getBackButtonName(): String = backButton.name
 
-    fun getBackButtonLore(): List<String> =
-        guiConfig.getStringList("back-button.lore")
+    fun getBackButtonLore(): List<String> = backButton.lore
 
     fun getCategoryIconMaterial(categoryKey: String): Material =
-        parseMaterial(guiConfig.getString("categories.$categoryKey.categories-icon.type"), Material.STONE)
+        categorySpecs[categoryKey]?.categoryIcon?.material ?: Material.STONE
 
     fun getCategoryIconName(categoryKey: String): String =
-        guiConfig.getString("categories.$categoryKey.categories-icon.display-name", categoryKey) ?: categoryKey
+        categorySpecs[categoryKey]?.categoryIcon?.name ?: categoryKey
 
     fun getCategoryIconLore(categoryKey: String): List<String> =
-        guiConfig.getStringList("categories.$categoryKey.categories-icon.lore")
+        categorySpecs[categoryKey]?.categoryIcon?.lore ?: emptyList()
 
     fun getCategoryIconFlags(categoryKey: String): List<ItemFlag> =
-        parseItemFlags(guiConfig.getStringList("categories.$categoryKey.categories-icon.flags"))
+        categorySpecs[categoryKey]?.categoryIcon?.flags ?: emptyList()
 
     fun getCategoryIconCustomModelData(categoryKey: String): Int =
-        guiConfig.getInt("categories.$categoryKey.categories-icon.custom-model-data", 0)
+        categorySpecs[categoryKey]?.categoryIcon?.customModelData ?: 0
 
     fun getCategoryIconEnchantments(categoryKey: String): List<String> =
-        guiConfig.getStringList("categories.$categoryKey.categories-icon.enchantments")
+        categorySpecs[categoryKey]?.categoryIcon?.enchantments ?: emptyList()
 
     fun getProgressIconMaterial(categoryKey: String): Material =
-        parseMaterial(guiConfig.getString("categories.$categoryKey.progress-icon.type"), Material.STONE)
+        categorySpecs[categoryKey]?.progressIcon?.material ?: Material.STONE
 
     fun getProgressIconName(categoryKey: String): String =
-        guiConfig.getString("categories.$categoryKey.progress-icon.display-name", categoryKey) ?: categoryKey
+        categorySpecs[categoryKey]?.progressIcon?.name ?: categoryKey
 
     fun getProgressIconLore(categoryKey: String): List<String> =
-        guiConfig.getStringList("categories.$categoryKey.progress-icon.lore")
+        categorySpecs[categoryKey]?.progressIcon?.lore ?: emptyList()
 
     fun getProgressIconFlags(categoryKey: String): List<ItemFlag> =
-        parseItemFlags(guiConfig.getStringList("categories.$categoryKey.progress-icon.flags"))
+        categorySpecs[categoryKey]?.progressIcon?.flags ?: emptyList()
 
     fun getProgressIconCustomModelData(categoryKey: String): Int =
-        guiConfig.getInt("categories.$categoryKey.progress-icon.custom-model-data", 0)
+        categorySpecs[categoryKey]?.progressIcon?.customModelData ?: 0
 
     fun getProgressIconEnchantments(categoryKey: String): List<String> =
-        guiConfig.getStringList("categories.$categoryKey.progress-icon.enchantments")
+        categorySpecs[categoryKey]?.progressIcon?.enchantments ?: emptyList()
 
     fun getProgressItemMaterial(state: String): Material =
-        parseMaterial(guiConfig.getString("progress-items.$state.type"), Material.YELLOW_STAINED_GLASS_PANE)
+        progressItems[state]?.material ?: Material.GRAY_STAINED_GLASS_PANE
 
     fun getProgressItemName(state: String): String =
-        guiConfig.getString("progress-items.$state.display-name", state) ?: state
+        progressItems[state]?.name ?: state
 
     fun getProgressItemLore(state: String): List<String> =
-        guiConfig.getStringList("progress-items.$state.lore")
+        progressItems[state]?.lore ?: emptyList()
 
-    fun getFilledPrefix(): String =
-        guiConfig.getString("progress-bar.filled-prefix", "#00f986&m") ?: ""
+    fun getFilledPrefix(): String = progressBarFilledPrefix
 
-    fun getEmptyPrefix(): String =
-        guiConfig.getString("progress-bar.empty-prefix", "&f&m") ?: ""
+    fun getEmptyPrefix(): String = progressBarEmptyPrefix
 
-    fun getCompleteChar(): String =
-        guiConfig.getString("progress-bar.complete-char", " ") ?: " "
+    fun getCompleteChar(): String = progressBarCompleteChar
 
-    fun getIncompleteChar(): String =
-        guiConfig.getString("progress-bar.incomplete-char", " ") ?: " "
+    fun getIncompleteChar(): String = progressBarIncompleteChar
 
-    fun getMaxBars(): Int =
-        guiConfig.getInt("progress-bar.max-bars", 16)
+    fun getMaxBars(): Int = progressBarMaxBars
 
     fun buildProgressBar(percentage: Double): String {
         val maxBars = getMaxBars()
@@ -133,88 +256,87 @@ class GUIManager(private val plugin: SystemSellAddonPlugin) {
         return sb.toString()
     }
 
-    fun getWorthGUITitle(): String =
-        guiConfig.getString("worth-gui.title", "ITEM PRICES (Page %page%/%total%)") ?: ""
+    fun getWorthGUITitle(): String = worthTitle
 
-    fun getWorthSortButtonMaterial(): Material =
-        parseMaterial(guiConfig.getString("worth-gui.sort-button.type"), Material.CAULDRON)
+    fun getWorthSortButtonMaterial(): Material = worthSortButtonMaterial
 
-    fun getWorthSortButtonName(): String =
-        guiConfig.getString("worth-gui.sort-button.display-name", "#00f986sort") ?: ""
+    fun getWorthSortButtonName(): String = worthSortButtonName
 
-    fun getWorthLoreSelected(): String =
-        guiConfig.getString("worth-gui.sort-button.lore-selected", "#00f986• %option%") ?: ""
+    fun getWorthLoreSelected(): String = worthSortSelected
 
-    fun getWorthLoreUnselected(): String =
-        guiConfig.getString("worth-gui.sort-button.lore-unselected", "&f• %option%") ?: ""
+    fun getWorthLoreUnselected(): String = worthSortUnselected
 
-    fun getWorthRefreshButtonMaterial(): Material =
-        parseMaterial(guiConfig.getString("worth-gui.refresh-button.type"), Material.ANVIL)
+    fun getWorthRefreshButtonMaterial(): Material = worthRefreshButtonMaterial
 
-    fun getWorthRefreshButtonName(): String =
-        guiConfig.getString("worth-gui.refresh-button.display-name", "#00f986Item Prices") ?: ""
+    fun getWorthRefreshButtonName(): String = worthRefreshButtonName
 
-    fun getWorthRefreshButtonLore(): List<String> =
-        guiConfig.getStringList("worth-gui.refresh-button.lore")
+    fun getWorthRefreshButtonLore(): List<String> = worthRefreshButtonLore
 
-    fun getWorthFilterButtonMaterial(): Material =
-        parseMaterial(guiConfig.getString("worth-gui.filter-button.type"), Material.HOPPER)
+    fun getWorthFilterButtonMaterial(): Material = worthFilterButtonMaterial
 
-    fun getWorthFilterButtonName(): String =
-        guiConfig.getString("worth-gui.filter-button.display-name", "#00f986Filter") ?: ""
+    fun getWorthFilterButtonName(): String = worthFilterButtonName
 
-    fun getWorthFilterLoreSelected(): String =
-        guiConfig.getString("worth-gui.filter-button.lore-selected", "#00f986• %option%") ?: ""
+    fun getWorthFilterLoreSelected(): String = worthFilterSelected
 
-    fun getWorthFilterLoreUnselected(): String =
-        guiConfig.getString("worth-gui.filter-button.lore-unselected", "&f• %option%") ?: ""
+    fun getWorthFilterLoreUnselected(): String = worthFilterUnselected
 
-    fun getWorthNavigationMaterial(): Material =
-        parseMaterial(guiConfig.getString("worth-gui.previous-button.type"), Material.ARROW)
+    fun getWorthNavigationMaterial(): Material = worthNavigationMaterial
 
-    fun getWorthPreviousButtonName(): String =
-        guiConfig.getString("worth-gui.previous-button.display-name", "#00f986previous") ?: ""
+    fun getWorthPreviousButtonName(): String = worthPreviousButtonName
 
-    fun getWorthPreviousButtonLore(): List<String> =
-        guiConfig.getStringList("worth-gui.previous-button.lore")
+    fun getWorthPreviousButtonLore(): List<String> = worthPreviousButtonLore
 
-    fun getWorthNextButtonName(): String =
-        guiConfig.getString("worth-gui.next-button.display-name", "#00f986next") ?: ""
+    fun getWorthNextButtonName(): String = worthNextButtonName
 
-    fun getWorthNextButtonLore(): List<String> =
-        guiConfig.getStringList("worth-gui.next-button.lore")
+    fun getWorthNextButtonLore(): List<String> = worthNextButtonLore
 
-    fun getWorthItemNameColor(): String =
-        guiConfig.getString("worth-gui.item-display.name-color", "#00f986") ?: ""
+    fun getWorthItemNameColor(): String = worthItemNameColor
 
-    fun getWorthItemLore(): List<String> =
-        guiConfig.getStringList("worth-gui.item-display.lore")
+    fun getWorthItemLore(): List<String> = worthItemLore
 
     fun reload() {
-        guiConfig = YamlConfiguration.loadConfiguration(guiFile)
+        // Hardcoded GUI. No reload needed.
     }
 
-    private fun parseMaterial(value: String?, fallback: Material): Material {
-        if (value == null) return fallback
-        return try {
-            Material.valueOf(value)
-        } catch (_: IllegalArgumentException) {
-            fallback
-        }
-    }
-
-    private fun parseItemFlags(values: List<String>): List<ItemFlag> {
-        val out = mutableListOf<ItemFlag>()
-        for (name in values) {
-            try {
-                out.add(ItemFlag.valueOf(name))
-            } catch (_: IllegalArgumentException) {
-                // ignore
-            }
-        }
-        return out
+    private fun buildCategory(
+        slot: Int,
+        title: String,
+        name: String,
+        material: Material,
+        summary: String,
+    ): CategorySpec {
+        val flags = listOf(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
+        val enchants = listOf("unbreaking:1")
+        val progressIcon = IconSpec(
+            material = material,
+            name = name,
+            lore = listOf(
+                "&7Sell $summary",
+                "&7to upgrade your multiplier.",
+                "",
+                "&fProgress below",
+            ),
+            flags = flags,
+            enchantments = enchants,
+        )
+        val categoryIcon = IconSpec(
+            material = material,
+            name = name,
+            lore = listOf(
+                "&7Sell $summary",
+                "&7to upgrade your multiplier.",
+                "",
+                "&fNext: &a%multiplier%x",
+                "%progress-bar% &7%progress%",
+            ),
+            flags = flags,
+            enchantments = enchants,
+        )
+        return CategorySpec(
+            slot = slot,
+            progressTitle = title,
+            categoryIcon = categoryIcon,
+            progressIcon = progressIcon,
+        )
     }
 }
-
-
-

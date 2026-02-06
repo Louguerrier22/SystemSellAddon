@@ -2,6 +2,7 @@ package ca.l1cked.systemselladdon.gui
 
 import ca.l1cked.systemselladdon.SystemSellAddonPlugin
 import ca.l1cked.systemselladdon.category.Category
+import ca.l1cked.systemselladdon.util.LevelPriceUtil
 import ca.l1cked.systemselladdon.util.MessageUtil
 import io.papermc.paper.registry.RegistryAccess
 import io.papermc.paper.registry.RegistryKey
@@ -34,7 +35,7 @@ class ProgressGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val progress = data.getProgress(category)
         val multiplier = data.getMultiplier(category)
 
-        val filler = ItemStack(Material.GRAY_STAINED_GLASS_PANE)
+        val filler = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
         val fillerMeta = filler.itemMeta
         if (fillerMeta != null) {
             fillerMeta.displayName(Component.empty())
@@ -46,7 +47,7 @@ class ProgressGUI(private val plugin: SystemSellAddonPlugin) : Listener {
 
         inventory.setItem(1, createCategoryIcon(category, multiplier, progress))
 
-        val levelPrices = plugin.config.getDoubleList("level-prices")
+        val maxLevels = LevelPriceUtil.getMaxLevels(plugin.config)
         val currentLevel = getCurrentLevel(multiplier)
         val backSlot = plugin.guiManager.getBackButtonSlot()
 
@@ -55,9 +56,9 @@ class ProgressGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             14, 23, 32, 41, 42, 43, 34, 25, 16, 7,
         )
 
-        for (i in 0 until min(levelSlots.size, levelPrices.size)) {
+        for (i in 0 until min(levelSlots.size, maxLevels)) {
             val slot = levelSlots[i]
-            val required = levelPrices[i]
+            val required = LevelPriceUtil.getPriceForLevel(plugin.config, i)
             val state = when {
                 i < currentLevel -> "COMPLETE"
                 i == currentLevel -> "WORKING"
@@ -125,12 +126,7 @@ class ProgressGUI(private val plugin: SystemSellAddonPlugin) : Listener {
 
     private fun getRequiredProgressForLevel(multiplier: Double): Double {
         val level = getCurrentLevel(multiplier)
-        val prices = plugin.config.getDoubleList("level-prices")
-        return when {
-            level < prices.size -> prices[level]
-            prices.isEmpty() -> 1000000.0
-            else -> prices[prices.size - 1]
-        }
+        return LevelPriceUtil.getPriceForLevel(plugin.config, level)
     }
 
     private fun getCurrentLevel(multiplier: Double): Int {

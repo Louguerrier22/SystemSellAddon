@@ -86,7 +86,7 @@ class PlayerDataManagerDB(private val plugin: SystemSellAddonPlugin) {
     }
 
     private fun savePlayerDataSync(uuid: UUID, data: PlayerData) {
-        val sql = "INSERT OR REPLACE INTO player_data (uuid, category, progress, multiplier) VALUES (?, ?, ?, ?)"
+        val sql = plugin.databaseManager.getPlayerDataUpsertSql()
         try {
             plugin.databaseManager.withConnection { conn ->
                 conn.prepareStatement(sql).use { stmt ->

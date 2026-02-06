@@ -4,6 +4,7 @@ import ca.l1cked.systemselladdon.command.CommandRegistrar
 import ca.l1cked.systemselladdon.bridge.MayorCallbackBridge
 import ca.l1cked.systemselladdon.data.PlayerDataManagerDB
 import ca.l1cked.systemselladdon.database.DatabaseManager
+import ca.l1cked.systemselladdon.database.DatabaseType
 import ca.l1cked.systemselladdon.gui.ProgressGUI
 import ca.l1cked.systemselladdon.gui.SellGUI
 import ca.l1cked.systemselladdon.gui.WorthGUI
@@ -18,6 +19,7 @@ import ca.l1cked.systemselladdon.managers.WorthOverlay
 import ca.l1cked.systemselladdon.managers.WorthLoreManager
 import ca.l1cked.systemselladdon.storage.SellStorage
 import ca.l1cked.systemselladdon.storage.SQLiteSellStorage
+import ca.l1cked.systemselladdon.storage.MySQLSellStorage
 import ca.l1cked.systemselladdon.command.HistoryService
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import net.milkbowl.vault.economy.Economy
@@ -105,7 +107,11 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
         worthLoreManager = WorthLoreManager(this)
         worthResetGUI = WorthResetGUI(this)
         mayorBridge = MayorCallbackBridge(this)
-        sellStorage = SQLiteSellStorage(dataFolder).also { it.init() }
+        sellStorage = if (databaseManager.type == DatabaseType.MYSQL) {
+            MySQLSellStorage(config, dataFolder.absolutePath)
+        } else {
+            SQLiteSellStorage(dataFolder)
+        }.also { it.init() }
         historyService = HistoryService(economy, sellStorage, config.getInt("history.page_size", 10), config.getInt("history.breakdown_max", 5))
         ioScope.launch { historyService.refreshKnownNames() }
         val retentionDays = config.getInt("history.retention_days", 14)
