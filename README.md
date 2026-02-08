@@ -2,14 +2,22 @@
 
 Selling plugin for Paper with category multipliers, a worth browser, and optional history.
 
+![SystemSellAddon Banner](docs/images/banner.png)
+
+![Status Badge](https://img.shields.io/badge/status-active-brightgreen)
+![Paper Badge](https://img.shields.io/badge/paper-1.21.x-blue)
+![Java Badge](https://img.shields.io/badge/java-21-orange)
+
 > **Proprietary / All Rights Reserved**
 > No license is granted to use, copy, modify, distribute, or create derivative works from this code.
 > For permissions, contact the copyright holder.
+
 
 ## Highlights
 - Category-based selling via GUI with progress and multiplier tiers
 - Worth browser (/worth) with sorting and filtering
 - Optional per-sell history (SQLite) and itemized logs
+- Shulker selling support with worth calculated from items inside + shulker box worth
 - Worth-lore overlay (requires ProtocolLib)
 - API events for integrations (plus MayorSystem callbacks when present)
 
@@ -61,6 +69,18 @@ Notes:
 - Settings GUI: toggle plugin, toggle history, reload config, ProtocolLib status.
 - History GUI: paginated list of sold items with timestamps and worth (when enabled).
 
+## Screenshots
+![Sell GUI](docs/images/sell-gui.png)
+
+![Progress GUI](docs/images/progress-gui.png)
+
+![Worth GUI](docs/images/worth-gui.png)
+
+![Settings GUI](docs/images/settings-gui.png)
+
+![History GUI](docs/images/history-gui.png)
+
+
 ## Configuration
 All files live in `plugins/SystemSellAddon/`:
 
@@ -85,6 +105,10 @@ All files live in `plugins/SystemSellAddon/`:
 
 GUI customization:
 - The GUI is hardcoded in the plugin (no `gui.yml`). To change layout/icons/text, edit `GUIManager`.
+
+## Configuration Examples
+- [Example config.yml](docs/examples/config.yml)
+- [Example prices.yml](docs/examples/prices.yml)
 
 ## Data Storage
 - SQLite: player data in `plugins/SystemSellAddon/data.db`, history in `plugins/SystemSellAddon/systemselladdon.db`

@@ -1,0 +1,73 @@
+# Example config.yml for SystemSellAddon
+
+# Storage backend for player data + optional history
+# Change type to "mysql" and fill mysql.* to use MySQL/MariaDB.
+database:
+  type: "sqlite"
+  sqlite:
+    file: "data.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "systemselladdon"
+    username: "root"
+    password: "change-me"
+    use-ssl: false
+    params: "allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8"
+
+# Multiplier level pricing
+level-prices:
+  mode: "formula"
+  max-levels: 20
+  formula:
+    base: 25000
+    growth: 1.6
+    exponent: 1.0
+    add-per-level: 0
+    min: 0
+    max: 640000000000
+  # list mode example:
+  # mode: "list"
+  # list:
+  #   - 25000
+  #   - 150000
+  #   - 500000
+  list: []
+
+settings:
+  enabled: true
+  base-multiplier: 1.0
+  multiplier-increment: 0.1
+  max-multiplier: 3.0
+  worth-lore:
+    enabled: true
+    format: "&7Worth: &a$%price%"
+
+message-settings:
+  show-item-breakdown: false
+
+messages:
+  prefix: "&8[&aSystemSellAddon&8]&r "
+  players-only: "{prefix}&cThis command can only be used by players."
+  no-items: "{prefix}&cYou have nothing to sell."
+  disabled: "{prefix}&cSystemSellAddon is currently disabled."
+  economy-failed: "{prefix}&cSell failed: &f{error}"
+  sold: "{prefix}&aSold items for &f{amount} &7(x{multiplier})."
+  sold-breakdown-header: "{prefix}&7Category breakdown:"
+  sold-breakdown-line: "&7- {category}: &f{amount}"
+  history-empty: "{prefix}&7No sell history found."
+  history-header: "{prefix}&7Sell history for &f{player} &7({count} entries):"
+  sold-total: "&a+$%amount%"
+  sold-total-action-bar: "&a+$%amount%"
+  sold-total-title: ""
+  sold-total-subtitle: ""
+  item-sold: "&a+$%amount% &7(%item% x%quantity%)"
+  multiplier-upgrade: "&a%category% &7multiplier upgraded to &f%multiplier%x"
+  cannot-be-sold: "{prefix}&cThis item cannot be sold."
+  nothing-to-sell: "{prefix}&cYou have nothing to sell."
+
+history:
+  enabled: false
+  page_size: 10
+  breakdown_max: 5
+  retention_days: 14

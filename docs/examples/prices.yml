@@ -1,0 +1,53 @@
+# Example prices.yml for SystemSellAddon
+#
+# Notes:
+# - Keys under TYPE are Bukkit material names (uppercase).
+# - Values are per-item prices.
+# - Add or remove items as needed.
+
+TYPE:
+  CROPS:
+    WHEAT: 20.0
+    CARROT: 18.0
+    POTATO: 17.5
+
+  ORES:
+    COAL: 12.0
+    IRON_INGOT: 8.5
+    DIAMOND: 150.0
+
+  MOBS:
+    ROTTEN_FLESH: 1.0
+    BONE: 3.5
+    SHULKER_SHELL: 85.0
+
+  NATURAL:
+    OAK_LOG: 20.0
+    NETHERRACK: 1.0
+    DIRT: 2.0
+
+  ARMOR_AND_TOOLS:
+    DIAMOND_SWORD: 50.0
+    NETHERITE_CHESTPLATE: 2500.0
+
+  FISH:
+    COD: 3.0
+    COOKED_COD: 5.0
+    NAUTILUS_SHELL: 120.0
+
+  BOOK:
+    BOOK: 18.0
+    ENCHANTED_BOOK: 35.0
+
+  POTIONS:
+    POTION: 10.0
+    SPLASH_POTION: 12.0
+
+  BLOCKS:
+    STONE: 2.0
+    SHULKER_BOX: 60.0
+    RED_SHULKER_BOX: 120.0
+    ENDER_CHEST: 250.0
+
+BLOCK-ITEMS:
+  - "SPAWNER"
