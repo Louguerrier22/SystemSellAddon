@@ -13,8 +13,8 @@ import java.nio.file.Files
 class PricesManager(private val plugin: SystemSellAddonPlugin) {
     private lateinit var pricesFile: File
     private lateinit var pricesConfig: FileConfiguration
-    private val priceCache: MutableMap<Material, Double> = HashMap()
-    private val categoryCache: MutableMap<Material, Category> = HashMap()
+    @Volatile private var priceCache: Map<Material, Double> = emptyMap()
+    @Volatile private var categoryCache: Map<Material, Category> = emptyMap()
 
     init {
         loadPrices()
@@ -38,31 +38,40 @@ class PricesManager(private val plugin: SystemSellAddonPlugin) {
     }
 
     private fun cachePrices(log: Boolean) {
-        priceCache.clear()
-        categoryCache.clear()
+        val newPrices: MutableMap<Material, Double> = HashMap()
+        val newCategories: MutableMap<Material, Category> = HashMap()
         val typeSection = pricesConfig.getConfigurationSection("TYPE")
         if (typeSection == null) {
             if (log) {
                 plugin.logger.warning("No TYPE section found in prices.yml!")
             }
+            priceCache = emptyMap()
+            categoryCache = emptyMap()
             return
         }
         for (category in Category.values()) {
             val catSection = typeSection.getConfigurationSection(category.configPath) ?: continue
-            cacheCategory(catSection, category)
+            cacheCategory(catSection, category, newPrices, newCategories)
         }
+        priceCache = newPrices
+        categoryCache = newCategories
         if (log) {
             plugin.logger.info("Loaded ${priceCache.size} items from prices.yml")
         }
     }
 
-    private fun cacheCategory(section: ConfigurationSection, category: Category) {
+    private fun cacheCategory(
+        section: ConfigurationSection,
+        category: Category,
+        priceMap: MutableMap<Material, Double>,
+        categoryMap: MutableMap<Material, Category>,
+    ) {
         for (key in section.getKeys(false)) {
             try {
                 val material = Material.valueOf(key)
                 val price = section.getDouble(key, 0.0)
-                priceCache[material] = price
-                categoryCache[material] = category
+                priceMap[material] = price
+                categoryMap[material] = category
             } catch (_: IllegalArgumentException) {
                 // ignore invalid material
             }
@@ -102,7 +111,9 @@ class PricesManager(private val plugin: SystemSellAddonPlugin) {
         val category = categoryCache[material] ?: return false
         val section = pricesConfig.getConfigurationSection("TYPE.${category.configPath}") ?: return false
         section.set(material.name, price)
-        priceCache[material] = price
+        val updated = HashMap(priceCache)
+        updated[material] = price
+        priceCache = updated
         save()
         return true
     }

@@ -41,6 +41,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         }
         openInventories[player.uniqueId] = inventory
         player.openInventory(inventory)
+        plugin.worthOverlay.refreshPlayer(player)
     }
 
     private fun createCategoryIcon(player: Player, category: Category): ItemStack {
@@ -174,26 +175,20 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
 
         val inventory = openInventories[player.uniqueId] ?: return
         if (!plugin.config.getBoolean("settings.enabled", true)) {
-            for (slot in 0 until 36) {
-                val item = inventory.getItem(slot) ?: continue
-                if (item.type == Material.AIR) continue
-                player.inventory.addItem(item)
-            }
+            returnInventory(player, inventory)
             val disabled = applyPrefix(
                 plugin.config.getString("messages.disabled", "&cSystemSellAddon is currently disabled.")
             )
             MessageUtil.sendMessage(player, disabled)
             openInventories.remove(player.uniqueId)
+            scheduleOverlayRefresh(player)
             return
         }
         if (!plugin.playerDataManager.isLoaded(player.uniqueId)) {
-            for (slot in 0 until 36) {
-                val item = inventory.getItem(slot) ?: continue
-                if (item.type == Material.AIR) continue
-                player.inventory.addItem(item)
-            }
+            returnInventory(player, inventory)
             MessageUtil.sendMessage(player, "&cYour data is still loading. Please try again in a moment.")
             openInventories.remove(player.uniqueId)
+            scheduleOverlayRefresh(player)
             return
         }
         var total = 0.0
@@ -209,11 +204,13 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             if (item.type == Material.AIR) continue
             val pricePerItem = getItemBasePrice(item)
             if (pricePerItem <= 0) {
-                player.inventory.addItem(item)
+                returnItem(player, item)
+                inventory.setItem(slot, null)
                 continue
             }
             val category = getItemCategory(item.type) ?: run {
-                player.inventory.addItem(item)
+                returnItem(player, item)
+                inventory.setItem(slot, null)
                 continue
             }
 
@@ -266,7 +263,17 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         }
 
         if (total > 0) {
-            plugin.economy.depositPlayer(player, total)
+            val response = plugin.economy.depositPlayer(player, total)
+            if (!response.transactionSuccess()) {
+                returnInventory(player, inventory)
+                val msg = applyPrefix(
+                    plugin.config.getString("messages.economy-failed", "&cSell failed: &f{error}")
+                ).replace("{error}", response.errorMessage ?: "unknown")
+                MessageUtil.sendMessage(player, msg)
+                openInventories.remove(player.uniqueId)
+                scheduleOverlayRefresh(player)
+                return
+            }
             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f)
 
             val soldTotal = applyPrefix(
@@ -423,6 +430,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         }
 
         openInventories.remove(player.uniqueId)
+        scheduleOverlayRefresh(player)
     }
 
     private fun getItemBasePrice(item: ItemStack): Double {
@@ -446,6 +454,27 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         if (raw.isNullOrEmpty()) return ""
         val prefix = plugin.config.getString("messages.prefix", "") ?: ""
         return raw.replace("{prefix}", prefix)
+    }
+
+    private fun returnItem(player: Player, item: ItemStack) {
+        val leftovers = player.inventory.addItem(item)
+        if (leftovers.isNotEmpty()) {
+            leftovers.values.forEach { player.world.dropItemNaturally(player.location, it) }
+        }
+    }
+
+    private fun returnInventory(player: Player, inventory: Inventory) {
+        for (slot in 0 until 36) {
+            val item = inventory.getItem(slot) ?: continue
+            if (item.type == Material.AIR) continue
+            returnItem(player, item)
+        }
+    }
+
+    private fun scheduleOverlayRefresh(player: Player) {
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.worthOverlay.refreshPlayer(player)
+        })
     }
 
     private fun parseEnchantment(name: String): Enchantment? {

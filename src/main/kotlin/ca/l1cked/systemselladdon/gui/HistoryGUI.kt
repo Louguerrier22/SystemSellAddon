@@ -56,6 +56,7 @@ class HistoryGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val loadingInv = Bukkit.createInventory(loadingHolder, 54, loadingTitle)
         loadingInv.setItem(22, loadingItem())
         player.openInventory(loadingInv)
+        plugin.worthOverlay.refreshPlayer(player)
 
         plugin.ioScope.launch {
             val entries = plugin.historyService.itemHistoryFor(targetId, pageSize, offset)
@@ -113,6 +114,7 @@ class HistoryGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                 }
 
                 player.openInventory(inv)
+                plugin.worthOverlay.refreshPlayer(player)
             })
         }
     }
@@ -202,6 +204,9 @@ class HistoryGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val player = event.player as? Player ?: return
         val holder = event.view.topInventory.holder as? HistoryHolder ?: return
         states.remove(player.uniqueId)
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.worthOverlay.refreshPlayer(player)
+        })
     }
 }
 

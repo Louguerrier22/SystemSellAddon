@@ -65,6 +65,7 @@ class WorthGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         }
 
         player.openInventory(inventory)
+        plugin.worthOverlay.refreshPlayer(player)
     }
 
     private fun createPriceItem(material: Material, price: Double): ItemStack {
@@ -352,6 +353,9 @@ class WorthGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val title = MessageUtil.serialize(event.view.title())
         val prefix = MessageUtil.legacy(plugin.guiManager.getWorthGUITitle().split("%")[0].trim())
         if (!title.contains(prefix)) return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.worthOverlay.refreshPlayer(player)
+        })
     }
 
     fun cleanup(player: Player) {

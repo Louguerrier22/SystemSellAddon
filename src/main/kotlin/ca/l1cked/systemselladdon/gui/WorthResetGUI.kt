@@ -9,6 +9,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryCreativeEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.inventory.Inventory
@@ -28,6 +29,7 @@ class WorthResetGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val inv = Bukkit.createInventory(null, 27, MessageUtil.deserialize(ROOT_TITLE))
         fillRoot(inv)
         player.openInventory(inv)
+        plugin.worthOverlay.refreshPlayer(player)
     }
 
     private fun openPlayerSelect(player: Player) {
@@ -35,6 +37,7 @@ class WorthResetGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val inv = Bukkit.createInventory(null, 54, MessageUtil.deserialize(SELECT_TITLE))
         fillPlayerSelect(inv)
         player.openInventory(inv)
+        plugin.worthOverlay.refreshPlayer(player)
     }
 
     private fun fillRoot(inv: Inventory) {
@@ -105,6 +108,16 @@ class WorthResetGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             View.PLAYER_SELECT -> handlePlayerSelectClick(player, event.rawSlot, event.currentItem)
             else -> {}
         }
+    }
+
+    @EventHandler
+    fun onClose(event: InventoryCloseEvent) {
+        val title = MessageUtil.serialize(event.view.title())
+        if (title != MessageUtil.legacy(ROOT_TITLE) && title != MessageUtil.legacy(SELECT_TITLE)) return
+        val player = event.player as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.worthOverlay.refreshPlayer(player)
+        })
     }
 
     private fun handleRootClick(player: Player, rawSlot: Int) {

@@ -121,6 +121,9 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
         }
         mayorBridge.refreshProvider()
         worthOverlay.enable()
+        for (player in server.onlinePlayers) {
+            worthOverlay.refreshPlayer(player)
+        }
 
         server.pluginManager.registerEvents(sellGUI, this)
         server.pluginManager.registerEvents(progressGUI, this)

@@ -2,6 +2,10 @@
 
 Selling plugin for Paper with category multipliers, a worth browser, and optional history.
 
+> **Proprietary / All Rights Reserved**
+> No license is granted to use, copy, modify, distribute, or create derivative works from this code.
+> For permissions, contact the copyright holder.
+
 ## Highlights
 - Category-based selling via GUI with progress and multiplier tiers
 - Worth browser (/worth) with sorting and filtering
@@ -101,6 +105,18 @@ Note: SystemSellAddon payouts already include the internal multiplier. Apply ext
 ./gradlew build
 ```
 The shaded jar is produced in `build/libs/`.
+
+## License & Copyright
+Copyright (c) 2026 Lou Morel (Canada). All rights reserved.
+
+This repository is proprietary. No license, express or implied, is granted to any person or entity.
+You may not use, copy, modify, merge, publish, distribute, sublicense, sell, or create derivative works
+from any part of this repository without explicit prior written permission from the copyright holder.
+
+Public visibility (including viewing or forking on a code hosting platform) does not grant permission
+to use, modify, or distribute this code for any purpose.
+
+No patent, trademark, or other intellectual property rights are granted by this notice.
 
 ## Support
 Open an issue with:

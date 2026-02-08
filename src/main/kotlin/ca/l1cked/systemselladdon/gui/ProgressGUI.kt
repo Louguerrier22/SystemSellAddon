@@ -16,6 +16,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import java.util.UUID
@@ -70,6 +71,7 @@ class ProgressGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         inventory.setItem(backSlot, createBackButton())
         openInventories[player.uniqueId] = MessageUtil.legacy(title)
         player.openInventory(inventory)
+        plugin.worthOverlay.refreshPlayer(player)
     }
 
     private fun createLevelIndicator(
@@ -240,6 +242,17 @@ class ProgressGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             plugin.sellGUI.openGUI(player)
             openInventories.remove(player.uniqueId)
         }
+    }
+
+    @EventHandler
+    fun onInventoryClose(event: InventoryCloseEvent) {
+        val player = event.player as? Player ?: return
+        val title = MessageUtil.serialize(event.view.title())
+        val expectedTitle = openInventories[player.uniqueId] ?: return
+        if (expectedTitle != title) return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.worthOverlay.refreshPlayer(player)
+        })
     }
 
     private fun parseEnchantment(raw: String): Enchantment? {

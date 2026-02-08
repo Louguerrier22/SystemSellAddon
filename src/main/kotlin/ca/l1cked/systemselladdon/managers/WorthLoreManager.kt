@@ -41,6 +41,7 @@ class WorthLoreManager(private val plugin: SystemSellAddonPlugin) : Listener {
         plugin.playerDataManager.getPlayerData(player.uniqueId)
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             updateInventory(player)
+            plugin.worthOverlay.refreshPlayer(player)
         }, 20L)
     }
 
@@ -231,6 +232,13 @@ class WorthLoreManager(private val plugin: SystemSellAddonPlugin) : Listener {
                 clearWorthLore(player.inventory)
                 clearCursorWorth(player)
                 player.updateInventory()
+                plugin.worthOverlay.refreshPlayer(player)
+            }, 1L)
+        } else {
+            val player = event.player
+            plugin.server.scheduler.runTaskLater(plugin, Runnable {
+                updateInventory(player)
+                plugin.worthOverlay.refreshPlayer(player)
             }, 1L)
         }
     }

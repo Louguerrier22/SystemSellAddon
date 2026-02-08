@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.event.inventory.InventoryDragEvent
@@ -20,6 +21,7 @@ class SettingsGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         val inv = Bukkit.createInventory(null, 9, title)
         fill(inv, player)
         player.openInventory(inv)
+        plugin.worthOverlay.refreshPlayer(player)
     }
 
     private fun fill(inv: Inventory, viewer: Player?) {
@@ -148,6 +150,16 @@ class SettingsGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                 plugin.worthResetGUI.openRoot(player)
             }
         }
+    }
+
+    @EventHandler
+    fun onClose(event: InventoryCloseEvent) {
+        val title = MessageUtil.serialize(event.view.title())
+        if (title != MessageUtil.legacy("&8SystemSellAddon Settings")) return
+        val player = event.player as? Player ?: return
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.worthOverlay.refreshPlayer(player)
+        })
     }
 
     private fun setBorders(inv: Inventory) {
