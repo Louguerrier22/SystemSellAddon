@@ -1,11 +1,18 @@
 name: SystemSellAddon
-version: 1.0.0
+version: ${version}
 main: ca.l1cked.systemselladdon.SystemSellAddonPlugin
 api-version: 1.21
 depend: [Vault]
-softdepend: [ProtocolLib, EzEconomy]
+softdepend: [ProtocolLib, EzEconomy, MayorSystem]
 author: L1cked
 description: Advanced selling plugin with multiplier progression system
+
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:2.3.0
+  - org.incendo:cloud-paper:2.0.0-beta.14
+  - org.xerial:sqlite-jdbc:3.46.1.0
+  - com.mysql:mysql-connector-j:8.4.0
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
 
 permissions:
   systemselladdon.reload:

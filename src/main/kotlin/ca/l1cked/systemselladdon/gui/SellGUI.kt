@@ -23,10 +23,10 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
 import org.bukkit.inventory.meta.ItemMeta
 import kotlinx.coroutines.launch
-import java.util.UUID
 import kotlin.math.min
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryCreativeEvent
+import java.util.UUID
 
 class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
     private val openInventories: MutableMap<UUID, Inventory> = HashMap()
@@ -221,9 +221,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                     val amount = item.amount
                     val itemTotal = pricePerItem * amount * multiplier
                     total += itemTotal
-                    if (hasDetailListeners) {
-                        categoryTotals[category.id] += itemTotal
-                    }
+                    categoryTotals[category.id] += itemTotal
                     val currentProgress = progressTotals[category] ?: 0.0
                     progressTotals[category] = currentProgress + (pricePerItem * amount)
                 }
@@ -236,9 +234,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                     val contentBase = contentPrice * content.amount
                     val contentTotal = contentBase * contentMultiplier
                     total += contentTotal
-                    if (hasDetailListeners) {
-                        categoryTotals[contentCategory.id] += contentTotal
-                    }
+                    categoryTotals[contentCategory.id] += contentTotal
                     val currentProgress = progressTotals[contentCategory] ?: 0.0
                     progressTotals[contentCategory] = currentProgress + contentBase
                 }
@@ -249,9 +245,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
             val amount = item.amount
             val itemTotal = pricePerItem * amount * multiplier
             total += itemTotal
-            if (hasDetailListeners) {
-                categoryTotals[category.id] += itemTotal
-            }
+            categoryTotals[category.id] += itemTotal
 
             val currentProgress = progressTotals[category] ?: 0.0
             progressTotals[category] = currentProgress + (pricePerItem * amount)
@@ -379,12 +373,11 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                     )
                 }
 
-                notifyMayorCallback(
-                    playerId = player.uniqueId,
-                    categoryTotals = categoryTotalsSnapshot,
+                plugin.mayorBonus.applyMayorBonus(
+                    player = player,
+                    paidByCategory = categoryTotalsSnapshot,
                     totalPaid = total,
-                    timestampMillis = timestamp,
-                    txId = txId,
+                    transactionId = txId?.toString()
                 )
             }
 
@@ -520,33 +513,7 @@ class SellGUI(private val plugin: SystemSellAddonPlugin) : Listener {
         return Pair(ids, paid)
     }
 
-    private fun notifyMayorCallback(
-        playerId: UUID,
-        categoryTotals: DoubleArray?,
-        totalPaid: Double,
-        timestampMillis: Long,
-        txId: Long?,
-    ) {
-        if (totalPaid <= 0.0) return
-        if (!plugin.mayorBridge.isAvailable()) {
-            plugin.mayorBridge.refreshProvider()
-            if (!plugin.mayorBridge.isAvailable()) return
-        }
-        val payload = DoubleArray(Category.size + 1)
-        if (categoryTotals != null && categoryTotals.size == Category.size) {
-            for (i in 0 until Category.size) {
-                payload[i] = categoryTotals[i]
-            }
-        }
-        payload[Category.size] = totalPaid
-        plugin.mayorBridge.notifyPayout(
-            playerId = playerId,
-            paidByCategory = payload,
-            totalPaid = totalPaid,
-            timestampMillis = timestampMillis,
-            transactionId = txId?.toString(),
-        )
-    }
+ 
 }
 
 

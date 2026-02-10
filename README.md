@@ -8,6 +8,8 @@ Selling plugin for Paper with category multipliers, a worth browser, and optiona
 ![Paper Badge](https://img.shields.io/badge/paper-1.21.x-blue)
 ![Java Badge](https://img.shields.io/badge/java-21-orange)
 
+**Version:** 1.0.0
+
 > **Limited Use License (Paid or Authorized Only)**
 > You may run the compiled plugin only if you have paid for it or received explicit authorization.
 > No rights are granted to use or modify the source code or distribute the plugin binary.
@@ -21,6 +23,17 @@ Selling plugin for Paper with category multipliers, a worth browser, and optiona
 - Worth-lore overlay (requires ProtocolLib)
 - API events for integrations (plus MayorSystem callbacks when present)
 
+## Screenshots
+![Sell GUI](docs/images/sell-gui.png)
+
+![Progress GUI](docs/images/progress-gui.png)
+
+![Worth GUI](docs/images/worth-gui.png)
+
+![Settings GUI](docs/images/settings-gui.png)
+
+![History GUI](docs/images/history-gui.png)
+
 ## Requirements
 - Paper 1.21.x (api-version: 1.21)
 - Java 21
@@ -28,7 +41,7 @@ Selling plugin for Paper with category multipliers, a worth browser, and optiona
 
 ## Optional Integrations
 - ProtocolLib: enables live worth lore in inventories
-- MayorSystem: receives payout callbacks automatically when installed
+- MayorSystem: receives payout callbacks automatically when installed, and imports `mayor-perks` into its own config on first start
 
 ## Install
 1. Drop the jar into `plugins/`.
@@ -69,17 +82,6 @@ Notes:
 - Settings GUI: toggle plugin, toggle history, reload config, ProtocolLib status.
 - History GUI: paginated list of sold items with timestamps and worth (when enabled).
 
-## Screenshots
-![Sell GUI](docs/images/sell-gui.png)
-
-![Progress GUI](docs/images/progress-gui.png)
-
-![Worth GUI](docs/images/worth-gui.png)
-
-![Settings GUI](docs/images/settings-gui.png)
-
-![History GUI](docs/images/history-gui.png)
-
 
 ## Configuration
 All files live in `plugins/SystemSellAddon/`:
@@ -98,6 +100,7 @@ All files live in `plugins/SystemSellAddon/`:
 - `message-settings.show-item-breakdown`
 - `messages.*` - Supports `{prefix}` placeholder
 - `history.enabled`, `history.page_size`, `history.breakdown_max`, `history.retention_days`
+- `mayor-perks.*` - Perk definitions consumed by MayorSystem (synced into MayorSystem config on startup)
 
 `prices.yml`
 - Prices are grouped by category. Category keys must match:
@@ -126,9 +129,15 @@ Note: SystemSellAddon payouts already include the internal multiplier. Apply ext
 
 ## Build
 ```bash
-./gradlew build
+./gradlew clean jar
 ```
-The shaded jar is produced in `build/libs/`.
+This produces the thin upload jar in `build/libs/` (no shaded dependencies).
+Runtime dependencies are downloaded by Paper/Spigot from `plugin.yml -> libraries` at server startup.
+
+Optional local fat jar (not for upload):
+```bash
+./gradlew shadowJar
+```
 
 ## License & Copyright
 Copyright (c) 2026 Lou Morel (Canada). All rights reserved.

@@ -126,13 +126,18 @@ class SellService(
                     )
                 )
             }
-
-            notifyMayorCallback(
-                playerId = player.uniqueId,
-                paidByCategory = paidByCategorySnapshot,
+            val bonusPayload = DoubleArray(Category.size)
+            for ((categoryKey, paid) in paidByCategorySnapshot) {
+                val id = Category.idForKey(categoryKey) ?: continue
+                if (id in 0 until Category.size) {
+                    bonusPayload[id] = paid
+                }
+            }
+            SystemSellAddonPlugin.instance.mayorBonus.applyMayorBonus(
+                player = player,
+                paidByCategory = bonusPayload,
                 totalPaid = total,
-                timestampMillis = now,
-                transactionId = txId?.toString(),
+                transactionId = txId?.toString()
             )
         }
 
@@ -191,35 +196,6 @@ class SellService(
     private fun roundMoney(value: Double): Double {
         // 2 decimal places, stable rounding.
         return round(value * 100.0) / 100.0
-    }
-
-    private fun notifyMayorCallback(
-        playerId: java.util.UUID,
-        paidByCategory: Map<String, Double>,
-        totalPaid: Double,
-        timestampMillis: Long,
-        transactionId: String?,
-    ) {
-        val plugin = SystemSellAddonPlugin.instance
-        if (!plugin.mayorBridge.isAvailable()) {
-            plugin.mayorBridge.refreshProvider()
-            if (!plugin.mayorBridge.isAvailable()) return
-        }
-        val payload = DoubleArray(Category.size + 1)
-        for ((categoryKey, paid) in paidByCategory) {
-            val id = Category.idForKey(categoryKey) ?: continue
-            if (id in 0 until Category.size) {
-                payload[id] = paid
-            }
-        }
-        payload[Category.size] = totalPaid
-        plugin.mayorBridge.notifyPayout(
-            playerId = playerId,
-            paidByCategory = payload,
-            totalPaid = totalPaid,
-            timestampMillis = timestampMillis,
-            transactionId = transactionId,
-        )
     }
 
 

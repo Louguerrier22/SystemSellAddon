@@ -1,4 +1,4 @@
-database:
+﻿database:
   type: "sqlite"
   sqlite:
     file: "data.db"
@@ -42,6 +42,89 @@ settings:
     enabled: true
     format: "&7Worth: &a$%price%"
 
+# MayorSystem sell-perk definitions (loaded by MayorSystem on startup)
+mayor-perks:
+  sell_all_10:
+    enabled: true
+    display_name: "<gold>/sell +10% (All Items)</gold>"
+    icon: "GOLD_INGOT"
+    lore:
+      - "<gray>Everyone gets a 10% sell bonus.</gray>"
+    sell_multiplier: 1.10
+    applies_to: "ALL"
+  systemsell_perk_0:
+    enabled: true
+    display_name: "<gold>/sell +15% (Crops)</gold>"
+    icon: "WHEAT"
+    lore:
+      - "<gray>Extra sell bonus for crops.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "0"
+  systemsell_perk_1:
+    enabled: true
+    display_name: "<gold>/sell +15% (Ores)</gold>"
+    icon: "IRON_INGOT"
+    lore:
+      - "<gray>Extra sell bonus for ores.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "1"
+  systemsell_perk_2:
+    enabled: true
+    display_name: "<gold>/sell +15% (Mobs)</gold>"
+    icon: "BONE"
+    lore:
+      - "<gray>Extra sell bonus for mob drops.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "2"
+  systemsell_perk_3:
+    enabled: true
+    display_name: "<gold>/sell +15% (Natural)</gold>"
+    icon: "OAK_LOG"
+    lore:
+      - "<gray>Extra sell bonus for natural items.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "3"
+  systemsell_perk_4:
+    enabled: true
+    display_name: "<gold>/sell +15% (Armor/Tools)</gold>"
+    icon: "DIAMOND_CHESTPLATE"
+    lore:
+      - "<gray>Extra sell bonus for armor & tools.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "4"
+  systemsell_perk_5:
+    enabled: true
+    display_name: "<gold>/sell +15% (Fish)</gold>"
+    icon: "COD"
+    lore:
+      - "<gray>Extra sell bonus for fish.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "5"
+  systemsell_perk_6:
+    enabled: true
+    display_name: "<gold>/sell +15% (Books)</gold>"
+    icon: "BOOK"
+    lore:
+      - "<gray>Extra sell bonus for books.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "6"
+  systemsell_perk_7:
+    enabled: true
+    display_name: "<gold>/sell +15% (Potions)</gold>"
+    icon: "POTION"
+    lore:
+      - "<gray>Extra sell bonus for potions.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "7"
+  systemsell_perk_8:
+    enabled: true
+    display_name: "<gold>/sell +15% (Blocks)</gold>"
+    icon: "STONE"
+    lore:
+      - "<gray>Extra sell bonus for blocks.</gray>"
+    sell_multiplier: 1.15
+    applies_to: "8"
+
 message-settings:
   show-item-breakdown: false
 
@@ -70,3 +153,4 @@ history:
   page_size: 10
   breakdown_max: 5
   retention_days: 14
+

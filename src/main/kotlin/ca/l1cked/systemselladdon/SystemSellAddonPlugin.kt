@@ -1,7 +1,7 @@
 package ca.l1cked.systemselladdon
 
 import ca.l1cked.systemselladdon.command.CommandRegistrar
-import ca.l1cked.systemselladdon.bridge.MayorCallbackBridge
+import ca.l1cked.systemselladdon.bridge.MayorBonusService
 import ca.l1cked.systemselladdon.data.PlayerDataManagerDB
 import ca.l1cked.systemselladdon.database.DatabaseManager
 import ca.l1cked.systemselladdon.database.DatabaseType
@@ -70,7 +70,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
         private set
     lateinit var historyService: HistoryService
         private set
-    lateinit var mayorBridge: MayorCallbackBridge
+    lateinit var mayorBonus: MayorBonusService
         private set
     val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -106,7 +106,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
         }
         worthLoreManager = WorthLoreManager(this)
         worthResetGUI = WorthResetGUI(this)
-        mayorBridge = MayorCallbackBridge(this)
+        mayorBonus = MayorBonusService(this)
         sellStorage = if (databaseManager.type == DatabaseType.MYSQL) {
             MySQLSellStorage(config, dataFolder.absolutePath)
         } else {
@@ -119,7 +119,12 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
             val cutoff = System.currentTimeMillis() - (retentionDays.toLong() * 24L * 60L * 60L * 1000L)
             ioScope.launch { sellStorage.purgeOlderThan(cutoff) }
         }
-        mayorBridge.refreshProvider()
+        mayorBonus.refreshProvider()
+        if (server.pluginManager.getPlugin("MayorSystem")?.isEnabled == true) {
+            logger.info("MayorSystem detected. Sell bonus integration enabled.")
+        } else {
+            logger.info("MayorSystem not detected. Sell bonus integration disabled.")
+        }
         worthOverlay.enable()
         for (player in server.onlinePlayers) {
             worthOverlay.refreshPlayer(player)
@@ -142,7 +147,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
             @org.bukkit.event.EventHandler
             fun onPluginEnable(e: org.bukkit.event.server.PluginEnableEvent) {
                 if (e.plugin.name.equals("MayorSystem", ignoreCase = true)) {
-                    mayorBridge.refreshProvider()
+                    mayorBonus.refreshProvider()
                     worthOverlay.enable()
                 }
             }
@@ -150,7 +155,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
             @org.bukkit.event.EventHandler
             fun onPluginDisable(e: org.bukkit.event.server.PluginDisableEvent) {
                 if (e.plugin.name.equals("MayorSystem", ignoreCase = true)) {
-                    mayorBridge.refreshProvider()
+                    mayorBonus.refreshProvider()
                     worthOverlay.enable()
                 }
             }
@@ -190,6 +195,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
         }
         logger.info("SystemSellAddon has been disabled!")
     }
+
 
     private fun setupEconomy(): Boolean {
         val vault = server.pluginManager.getPlugin("Vault")

@@ -55,11 +55,8 @@ tasks {
     }
 
     shadowJar {
-        archiveClassifier.set("")
+        // Keep the shadow jar for local testing, but don't overwrite the thin jar.
+        archiveClassifier.set("shadow")
         mergeServiceFiles()
-    }
-
-    build {
-        dependsOn(shadowJar)
     }
 }
