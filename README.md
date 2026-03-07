@@ -1,6 +1,6 @@
 # SystemSellAddon
 
-Selling plugin for Paper with category multipliers, a worth browser, and optional history.
+Selling plugin for [Paper](https://papermc.io/) with category multipliers, a worth browser, and optional history.
 
 ![SystemSellAddon Banner](docs/images/banner.png)
 
@@ -20,8 +20,8 @@ Selling plugin for Paper with category multipliers, a worth browser, and optiona
 - Worth browser (/worth) with sorting and filtering
 - Optional per-sell history (SQLite) and itemized logs
 - Shulker selling support with worth calculated from items inside + shulker box worth
-- Worth-lore overlay (requires ProtocolLib)
-- API events for integrations (plus MayorSystem callbacks when present)
+- Worth-lore overlay (requires [ProtocolLib](https://github.com/dmulloy2/ProtocolLib))
+- API events for integrations (plus [MayorSystem](https://github.com/L1cked/MayorSystem) callbacks when present)
 
 ## Screenshots
 ![Sell GUI](docs/images/sell-gui.png)
@@ -35,17 +35,17 @@ Selling plugin for Paper with category multipliers, a worth browser, and optiona
 ![History GUI](docs/images/history-gui.png)
 
 ## Requirements
-- Paper 1.21.x (api-version: 1.21)
-- Java 21
-- Vault (required) + any Vault economy provider (EssentialsX Economy, EzEconomy, etc.)
+- [Paper](https://papermc.io/) 1.21.x (api-version: 1.21)
+- [Java 21](https://adoptium.net/temurin/releases/?version=21)
+- [Vault](https://github.com/MilkBowl/Vault) (required) + any Vault economy provider (e.g., [EssentialsX Economy](https://github.com/EssentialsX/Essentials))
 
 ## Optional Integrations
-- ProtocolLib: enables live worth lore in inventories
-- MayorSystem: receives payout callbacks automatically when installed, and imports `mayor-perks` into its own config on first start
+- [ProtocolLib](https://github.com/dmulloy2/ProtocolLib): enables live worth lore in inventories
+- [MayorSystem](https://github.com/L1cked/MayorSystem): receives payout callbacks automatically when installed, and imports `mayor-perks` into its own config on first start
 
 ## Install
 1. Drop the jar into `plugins/`.
-2. Install Vault and an economy provider.
+2. Install [Vault](https://github.com/MilkBowl/Vault) and an economy provider.
 3. Start the server to generate configs.
 4. Customize `config.yml` and `prices.yml`.
 5. Reload with `/systemselladdon reload` or the Settings menu.
@@ -79,7 +79,7 @@ Notes:
 - Sell GUI: main sell interface. Put items in slots 0-35 and click category icons to view progress.
 - Progress GUI: per-category progress and next multiplier milestones.
 - Worth GUI: paginated price list with sort and filter controls.
-- Settings GUI: toggle plugin, toggle history, reload config, ProtocolLib status.
+- Settings GUI: toggle plugin, toggle history, reload config, [ProtocolLib](https://github.com/dmulloy2/ProtocolLib) status.
 - History GUI: paginated list of sold items with timestamps and worth (when enabled).
 
 
@@ -100,7 +100,7 @@ All files live in `plugins/SystemSellAddon/`:
 - `message-settings.show-item-breakdown`
 - `messages.*` - Supports `{prefix}` placeholder
 - `history.enabled`, `history.page_size`, `history.breakdown_max`, `history.retention_days`
-- `mayor-perks.*` - Perk definitions consumed by MayorSystem (synced into MayorSystem config on startup)
+- `mayor-perks.*` - Perk definitions consumed by [MayorSystem](https://github.com/L1cked/MayorSystem) (synced into [MayorSystem](https://github.com/L1cked/MayorSystem) config on startup)
 
 `prices.yml`
 - Prices are grouped by category. Category keys must match:
@@ -132,7 +132,7 @@ Note: SystemSellAddon payouts already include the internal multiplier. Apply ext
 ./gradlew clean jar
 ```
 This produces the thin upload jar in `build/libs/` (no shaded dependencies).
-Runtime dependencies are downloaded by Paper/Spigot from `plugin.yml -> libraries` at server startup.
+Runtime dependencies are downloaded by [Paper](https://papermc.io/)/[Spigot](https://www.spigotmc.org/) from `plugin.yml -> libraries` at server startup.
 
 Optional local fat jar (not for upload):
 ```bash
