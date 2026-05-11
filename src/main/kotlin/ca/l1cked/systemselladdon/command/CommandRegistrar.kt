@@ -211,6 +211,7 @@ object CommandRegistrar {
                     plugin.reloadConfig()
                     plugin.guiManager.reload()
                     plugin.pricesManager.reload()
+                    plugin.refreshMayorSystemIntegrationAfterConfigReload()
                     for (player in Bukkit.getOnlinePlayers()) {
                         plugin.worthOverlay.refreshPlayer(player)
                     }

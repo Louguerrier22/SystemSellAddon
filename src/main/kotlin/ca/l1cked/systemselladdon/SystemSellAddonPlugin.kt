@@ -2,6 +2,7 @@ package ca.l1cked.systemselladdon
 
 import ca.l1cked.systemselladdon.command.CommandRegistrar
 import ca.l1cked.systemselladdon.bridge.MayorBonusService
+import ca.l1cked.systemselladdon.bridge.MayorPerkSourceRegistration
 import ca.l1cked.systemselladdon.data.PlayerDataManagerDB
 import ca.l1cked.systemselladdon.database.DatabaseManager
 import ca.l1cked.systemselladdon.database.DatabaseType
@@ -32,6 +33,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.incendo.cloud.execution.ExecutionCoordinator
 import org.incendo.cloud.paper.PaperCommandManager
+import java.util.logging.Level
 
 class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
 
@@ -75,6 +77,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
     val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private lateinit var commandManager: PaperCommandManager<CommandSourceStack>
+    private var mayorPerkSourceRegistration: MayorPerkSourceRegistration? = null
 
     override fun onEnable() {
         instance = this
@@ -119,7 +122,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
             val cutoff = System.currentTimeMillis() - (retentionDays.toLong() * 24L * 60L * 60L * 1000L)
             ioScope.launch { sellStorage.purgeOlderThan(cutoff) }
         }
-        mayorBonus.refreshProvider()
+        refreshMayorSystemIntegration()
         if (server.pluginManager.getPlugin("MayorSystem")?.isEnabled == true) {
             logger.info("MayorSystem detected. Sell bonus integration enabled.")
         } else {
@@ -147,7 +150,7 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
             @org.bukkit.event.EventHandler
             fun onPluginEnable(e: org.bukkit.event.server.PluginEnableEvent) {
                 if (e.plugin.name.equals("MayorSystem", ignoreCase = true)) {
-                    mayorBonus.refreshProvider()
+                    refreshMayorSystemIntegration()
                     worthOverlay.enable()
                 }
             }
@@ -155,6 +158,8 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
             @org.bukkit.event.EventHandler
             fun onPluginDisable(e: org.bukkit.event.server.PluginDisableEvent) {
                 if (e.plugin.name.equals("MayorSystem", ignoreCase = true)) {
+                    mayorPerkSourceRegistration?.unregister()
+                    mayorPerkSourceRegistration = null
                     mayorBonus.refreshProvider()
                     worthOverlay.enable()
                 }
@@ -167,6 +172,12 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
     }
 
     override fun onDisable() {
+        try {
+            mayorPerkSourceRegistration?.unregister()
+            mayorPerkSourceRegistration = null
+        } catch (_: Throwable) {
+            // ignore
+        }
         ioScope.cancel()
         try {
             worthOverlay.disable()
@@ -220,6 +231,40 @@ class SystemSellAddonPlugin : JavaPlugin(), SystemSellAddonApi {
         economy = rsp.provider
         logger.info("Hooked economy provider: ${economy.name}")
         return true
+    }
+
+    private fun refreshMayorSystemIntegration() {
+        mayorBonus.refreshProvider()
+        if (!hasMayorSystemApi()) {
+            mayorPerkSourceRegistration?.unregister()
+            mayorPerkSourceRegistration = null
+            return
+        }
+
+        val bridge = mayorPerkSourceRegistration ?: runCatching {
+            Class.forName("ca.l1cked.systemselladdon.bridge.MayorPerkSourceBridge", true, javaClass.classLoader)
+                .getConstructor(SystemSellAddonPlugin::class.java)
+                .newInstance(this) as MayorPerkSourceRegistration
+        }.onFailure { ex ->
+            logger.log(Level.WARNING, "Failed to prepare MayorSystem perk source bridge.", ex)
+        }.getOrNull()?.also {
+            mayorPerkSourceRegistration = it
+        } ?: return
+        bridge.register()
+    }
+
+    fun refreshMayorSystemIntegrationAfterConfigReload() {
+        mayorPerkSourceRegistration?.unregister()
+        mayorPerkSourceRegistration = null
+        refreshMayorSystemIntegration()
+    }
+
+    private fun hasMayorSystemApi(): Boolean {
+        val mayorSystem = server.pluginManager.getPlugin("MayorSystem")
+        if (mayorSystem == null || !mayorSystem.isEnabled) return false
+        return runCatching {
+            mayorSystem.javaClass.classLoader.loadClass("mayorSystem.api.MayorSystemApi")
+        }.isSuccess
     }
 
     override fun getPersonalMultiplier(player: org.bukkit.entity.Player): Double {

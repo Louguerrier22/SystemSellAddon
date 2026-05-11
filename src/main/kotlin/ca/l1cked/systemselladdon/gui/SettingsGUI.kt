@@ -136,6 +136,7 @@ class SettingsGUI(private val plugin: SystemSellAddonPlugin) : Listener {
                 plugin.reloadConfig()
                 plugin.guiManager.reload()
                 plugin.pricesManager.reload()
+                plugin.refreshMayorSystemIntegrationAfterConfigReload()
                 for (p in Bukkit.getOnlinePlayers()) {
                     plugin.worthOverlay.refreshPlayer(p)
                 }

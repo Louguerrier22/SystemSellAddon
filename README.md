@@ -18,7 +18,7 @@ Selling plugin for [Paper](https://papermc.io/) with category multipliers, a wor
 ## Highlights
 - Category-based selling via GUI with progress and multiplier tiers
 - Worth browser (/worth) with sorting and filtering
-- Optional per-sell history (SQLite) and itemized logs
+- Optional per-sell history ([SQLite](https://www.sqlite.org/)) and itemized logs
 - Shulker selling support with worth calculated from items inside + shulker box worth
 - Worth-lore overlay (requires [ProtocolLib](https://github.com/dmulloy2/ProtocolLib))
 - API events for integrations (plus [MayorSystem](https://github.com/L1cked/MayorSystem) callbacks when present)
@@ -114,8 +114,8 @@ GUI customization:
 - [Example prices.yml](docs/examples/prices.yml)
 
 ## Data Storage
-- SQLite: player data in `plugins/SystemSellAddon/data.db`, history in `plugins/SystemSellAddon/systemselladdon.db`
-- MySQL: player data + history in the configured database
+- [SQLite](https://www.sqlite.org/): player data in `plugins/SystemSellAddon/data.db`, history in `plugins/SystemSellAddon/systemselladdon.db`
+- [MySQL](https://www.mysql.com/): player data + history in the configured database
 
 ## API / Events
 Integrations can listen to:

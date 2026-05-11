@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "ca.l1cked"
-version = "1.0.0"
+version = "1.0.1"
 val pluginName = project.name
 val pluginVersion = project.version.toString()
 
@@ -26,7 +26,7 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     // 5.4.x includes support for Paper 1.21.8
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
-    compileOnly(fileTree("../MayorSystem/build/libs") { include("*.jar") })
+    compileOnly(fileTree("../MayorSystem/build/libs") { include("MayorSystem-*-api.jar") })
 
     // Shaded into the final jar
     implementation(kotlin("stdlib"))

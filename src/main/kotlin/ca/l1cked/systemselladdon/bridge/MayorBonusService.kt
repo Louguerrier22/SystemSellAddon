@@ -25,7 +25,6 @@ class MayorBonusService(private val plugin: SystemSellAddonPlugin) {
     @Volatile private var configGetter: Method? = null
     @Volatile private var mayorPluginRef: Plugin? = null
 
-    @Volatile private var cachedPrefix: String = ""
     @Volatile private var cachedSellBonusTemplate: String? = null
     @Volatile private var cachedSettings: MayorSellSettings? = null
     @Volatile private var cacheLoaded: Boolean = false
@@ -61,14 +60,12 @@ class MayorBonusService(private val plugin: SystemSellAddonPlugin) {
             return
         }
         cachedSettings = readMayorSellSettings()
-        cachedPrefix = readMayorMessagePrefix()
         cachedSellBonusTemplate = readMayorMessageTemplate("public.sell_bonus")
         cacheLoaded = true
     }
 
     private fun clearCache() {
         cachedSettings = null
-        cachedPrefix = ""
         cachedSellBonusTemplate = null
         cacheLoaded = false
     }
@@ -134,7 +131,7 @@ class MayorBonusService(private val plugin: SystemSellAddonPlugin) {
 
     private fun activePerks(api: Any): Set<String> {
         val method = activePerksMethod ?: runCatching {
-            api.javaClass.getMethod("activePerkIdsOrEmpty")
+            api.javaClass.getMethod("activePerkIds")
         }.getOrNull()?.also { activePerksMethod = it } ?: return emptySet()
         val res = runCatching { method.invoke(api) }.getOrNull()
         @Suppress("UNCHECKED_CAST")
@@ -153,19 +150,6 @@ class MayorBonusService(private val plugin: SystemSellAddonPlugin) {
         val stackMode = cfg?.getString("sell_bonus.stack_mode", "MAX") ?: "MAX"
         val allStack = cfg?.getBoolean("sell_bonus.all_bonus_stack", true) ?: true
         return MayorSellSettings(enabled = enabled, stackMode = stackMode, allBonusStack = allStack)
-    }
-
-    private fun readMayorMessagePrefix(): String {
-        val messages = mayorMessages() ?: return ""
-        val getMethod = messagesGet ?: runCatching {
-            messages.javaClass.methods.firstOrNull { m ->
-                m.name == "get" && m.parameterCount == 2 &&
-                    m.parameterTypes[0] == String::class.java &&
-                    Map::class.java.isAssignableFrom(m.parameterTypes[1])
-            }
-        }.getOrNull()?.also { messagesGet = it } ?: return ""
-        return runCatching { getMethod.invoke(messages, "prefix", emptyMap<String, String>()) as? String }
-            .getOrNull() ?: ""
     }
 
     private fun readMayorMessageTemplate(key: String): String? {
@@ -293,8 +277,7 @@ class MayorBonusService(private val plugin: SystemSellAddonPlugin) {
                 "categorie" to entry.name
             )
         )
-        val full = cachedPrefix + msg
-        player.sendMessage(mm.deserialize(full))
+        player.sendMessage(mm.deserialize(msg))
     }
 
     private fun applyPlaceholders(text: String, placeholders: Map<String, String>): String {
