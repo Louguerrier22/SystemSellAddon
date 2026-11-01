@@ -21,7 +21,7 @@ Selling plugin for [Paper](https://papermc.io/) with category multipliers, a wor
 - Optional per-sell history ([SQLite](https://www.sqlite.org/)) and itemized logs
 - Shulker selling support with worth calculated from items inside + shulker box worth
 - Worth-lore overlay (requires [ProtocolLib](https://github.com/dmulloy2/ProtocolLib))
-- API events for integrations (plus [MayorSystem](https://github.com/L1cked/MayorSystem) callbacks when present)
+- API events for integrations (plus [MayorSystem](https://github.com/Louguerrier22/MayorSystem) callbacks when present)
 
 ## Screenshots
 ![Sell GUI](docs/images/sell-gui.png)
@@ -41,7 +41,7 @@ Selling plugin for [Paper](https://papermc.io/) with category multipliers, a wor
 
 ## Optional Integrations
 - [ProtocolLib](https://github.com/dmulloy2/ProtocolLib): enables live worth lore in inventories
-- [MayorSystem](https://github.com/L1cked/MayorSystem): receives payout callbacks automatically when installed, and imports `mayor-perks` into its own config on first start
+- [MayorSystem](https://github.com/Louguerrier22/MayorSystem): receives payout callbacks automatically when installed, and imports `mayor-perks` into its own config on first start
 
 ## Install
 1. Drop the jar into `plugins/`.
@@ -100,7 +100,7 @@ All files live in `plugins/SystemSellAddon/`:
 - `message-settings.show-item-breakdown`
 - `messages.*` - Supports `{prefix}` placeholder
 - `history.enabled`, `history.page_size`, `history.breakdown_max`, `history.retention_days`
-- `mayor-perks.*` - Perk definitions consumed by [MayorSystem](https://github.com/L1cked/MayorSystem) (synced into [MayorSystem](https://github.com/L1cked/MayorSystem) config on startup)
+- `mayor-perks.*` - Perk definitions consumed by [MayorSystem](https://github.com/Louguerrier22/MayorSystem) (synced into [MayorSystem](https://github.com/Louguerrier22/MayorSystem) config on startup)
 
 `prices.yml`
 - Prices are grouped by category. Category keys must match:
